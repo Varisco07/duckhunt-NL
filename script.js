@@ -25,6 +25,7 @@ let HEIGHT = 480;
 const DUCKS_PER_ROUND = 10;
 const TOTAL_ROUNDS = 5;
 const AMMO_PER_DUCK = 3;
+const DUCK_HIT_SCORES = [100, 60, 30];
 const DUCK_FRAME_COUNT = 9;
 const DUCK_SPRITE_COLUMNS = [
     [[128, 98], [250, 98], [367, 94], [482, 92], [594, 94], [707, 94], [821, 95], [934, 91], [1047, 96]],
@@ -312,11 +313,12 @@ function shoot() {
     const hit = duck && Math.abs(state.aim.x - duck.x) < 27 * scale && Math.abs(state.aim.y - duck.y) < 21 * scale;
 
     if (hit) {
-        state.score += 100;
+        const points = DUCK_HIT_SCORES[AMMO_PER_DUCK - state.shots - 1];
+        state.score += points;
         state.ducksHit += 1;
         state.duck = null;
         updateHud();
-        void continueGame(state.roundToken, "Colpita! +100 punti. Prossimo bersaglio in arrivo…");
+        void continueGame(state.roundToken, "Colpita al colpo " + (AMMO_PER_DUCK - state.shots) + "! +" + points + " punti. Prossimo bersaglio in arrivo…");
         return;
     }
 
@@ -324,7 +326,8 @@ function shoot() {
     if (state.shots === 0) {
         void continueGame(state.roundToken, "Colpi esauriti. Prossimo bersaglio in arrivo…");
     } else {
-        setStatus("Mancato. Restano " + state.shots + " colpi.", "");
+        const remainingShots = state.shots === 1 ? "1 colpo" : state.shots + " colpi";
+        setStatus("Mancato. Restano " + remainingShots + ".", "");
     }
 }
 

@@ -13,7 +13,8 @@ Apri `index.html` nel browser. Non sono necessari installazione, compilazione o 
 - Premi **P** per mettere in pausa o riprendere.
 - Usa **Schermo intero** per espandere il gioco.
 - Scegli Facile, Normale o Difficile prima di iniziare; la difficoltà resta bloccata durante la partita e si può cambiare al termine.
-- Ogni papera offre tre colpi; colpirla vale 100 punti.
+- Ogni papera offre tre colpi: 100 punti se la colpisci al primo, 60 al secondo o 30 al terzo.
+- Se esaurisci i colpi senza colpire, passi alla papera successiva e il round continua.
 - Completa 10 abbattimenti per round. Ci sono 5 round e la velocità aumenta con la difficoltà e con i round.
 
 ## Struttura
