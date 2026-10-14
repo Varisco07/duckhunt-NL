@@ -25,6 +25,7 @@ Apri `index.html` nel browser. Non sono necessari installazione, compilazione o 
 - `img/sfondo.png` — scenario di gioco.
 - `img/frame-anatra.png` — sprite sheet delle anatre.
 - `img/mirino.png` — mirino personalizzato.
+- `img/colpi.png` — sprite dei colpi visualizzata nell'interfaccia.
 - `img/frame-cane.png` — sprite del cane, disponibile per una futura integrazione.
 
 Le immagini vengono caricate dal browser dalla cartella `img`.

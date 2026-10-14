@@ -27,7 +27,7 @@
             <div class="score-card"><span>Round</span><strong id="roundDisplay">—</strong></div>
             <div class="score-card"><span>Abbattute</span><strong id="hitDisplay">0 / 10</strong></div>
             <div class="score-card"><span>Punteggio</span><strong id="scoreDisplay">00000</strong></div>
-            <div class="score-card ammo-card"><span>Colpi</span><strong id="ammoDisplay" aria-label="Tre colpi">● ● ●</strong></div>
+            <div class="score-card ammo-card"><span>Colpi</span><div id="ammoDisplay" role="img" aria-label="3 colpi rimasti"></div></div>
         </section>
 
         <section class="play-area" aria-label="Campo di caccia">
@@ -58,9 +58,10 @@
                 </select>
             </div>
             <p class="hint"><kbd>Mouse</kbd> mira e spara <span aria-hidden="true">·</span> <kbd>Spazio</kbd> spara <span aria-hidden="true">·</span> <kbd>P</kbd> pausa</p>
-            <button class="button button-quiet" id="fullscreenButton" type="button" aria-label="Attiva schermo intero">Schermo intero</button>
-            <button class="button button-quiet" id="pauseButton" type="button" disabled>Pausa</button>
-            <p>&copy; Varisco Nicolò - Androni Lorenzo - 5Bi</p>
+            <div class="game-actions">
+                <button class="button button-quiet" id="fullscreenButton" type="button" aria-label="Attiva schermo intero">Schermo intero</button>
+                <button class="button button-quiet" id="pauseButton" type="button" disabled>Pausa</button>
+            </div>
         </footer>
     </main>
 </body>

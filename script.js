@@ -105,11 +105,18 @@ function updateHud() {
     roundDisplay.textContent = state.phase === "ready" ? "—" : state.round + " / " + TOTAL_ROUNDS;
     hitDisplay.textContent = state.ducksHit + " / " + DUCKS_PER_ROUND;
     scoreDisplay.textContent = String(state.score).padStart(5, "0");
-    ammoDisplay.textContent = Array.from(
-        { length: AMMO_PER_DUCK },
-        (_, index) => index < state.shots ? "●" : "○"
-    ).join(" ");
-    ammoDisplay.setAttribute("aria-label", state.shots + " colpi rimasti");
+    const ammoRow = AMMO_PER_DUCK - state.shots;
+    ammoDisplay.replaceChildren(...Array.from({ length: AMMO_PER_DUCK }, () => {
+        const bullet = document.createElement("span");
+        bullet.className = "ammo-icon";
+        bullet.style.setProperty("--ammo-row", ammoRow);
+        bullet.setAttribute("aria-hidden", "true");
+        return bullet;
+    }));
+    ammoDisplay.setAttribute(
+        "aria-label",
+        state.shots === 1 ? "1 colpo rimasto" : state.shots + " colpi rimasti"
+    );
 }
 
 function drawBackground() {
