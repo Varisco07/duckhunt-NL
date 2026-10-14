@@ -104,7 +104,7 @@ h1 span { color: var(--yellow); }
     width: min(480px, 56vw);
     min-height: 56px;
     display: grid;
-    grid-template-columns: 1fr 1.1fr 1.35fr 1fr;
+    grid-template-columns: 1fr 1.1fr 1.35fr 1fr 1fr;
     align-items: stretch;
     border: 1px solid var(--line);
     border-radius: 4px;
@@ -168,7 +168,7 @@ h1 span { color: var(--yellow); }
     height: 100%;
     cursor: none;
     image-rendering: pixelated;
-    touch-action: manipulation;
+    touch-action: none;
 }
 
 .game-overlay {
@@ -210,6 +210,7 @@ h1 span { color: var(--yellow); }
     font-size: 13px;
     line-height: 1.6;
     text-shadow: 0 1px 5px #000;
+    white-space: pre-line;
 }
 
 .button {
@@ -347,6 +348,8 @@ kbd {
     font: 700 9px/1.2 Consolas, monospace;
 }
 
+.touch-hint { display: none; }
+
 @media (max-width: 600px) {
     .topbar { top: max(9px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); }
     .edition { display: none; }
@@ -357,9 +360,9 @@ kbd {
     .scoreboard {
         top: max(10px, env(safe-area-inset-top));
         right: max(10px, env(safe-area-inset-right));
-        width: min(80vw, 380px);
+        width: min(90vw, 420px);
         min-height: 45px;
-        grid-template-columns: 1fr 1.1fr 1.2fr 1.5fr;
+        grid-template-columns: 1fr 1.1fr 1.2fr 1fr 1.35fr;
     }
     .score-card { padding: 4px 6px; }
     .score-card span { font-size: 6px; letter-spacing: .06em; }
@@ -396,7 +399,19 @@ kbd {
     .difficulty-control { gap: 5px; }
     .difficulty-control label { font-size: 9px; }
     select { min-height: 28px; max-width: 90px; padding-left: 6px; font-size: 9px; }
-    .hint { display: none; }
+    .hint {
+        position: absolute;
+        bottom: max(91px, calc(env(safe-area-inset-bottom) + 87px));
+        left: 50%;
+        display: block;
+        width: max-content;
+        max-width: calc(100vw - 20px);
+        transform: translateX(-50%);
+        font-size: 8px;
+        text-align: center;
+    }
+    .desktop-hint { display: none; }
+    .touch-hint { display: inline; }
     .button-quiet { min-height: 29px; padding: 0 10px; font-size: 9px; }
 }
 
@@ -414,6 +429,11 @@ kbd {
     .scoreboard { min-height: 42px; }
     .game-status { bottom: 52px; }
     .controls { bottom: 6px; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .desktop-hint { display: none; }
+    .touch-hint { display: inline; }
 }
 
 @media (prefers-reduced-motion: reduce) {

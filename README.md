@@ -1,31 +1,53 @@
-# Duck Hunt
+# Duck Hunt NL
 
-Una reinterpretazione arcade di Duck Hunt realizzata con HTML, CSS e JavaScript, senza framework o dipendenze.
+Una caccia arcade in pixel art: prendi la mira, colpisci le anatre e completa cinque round sempre più impegnativi. Hai tre colpi per ogni bersaglio: la precisione conta quanto i riflessi.
 
-## Avvio
+## Avviare il gioco
 
-Apri `index.html` nel browser. Non sono necessari installazione, compilazione o server.
+Apri `index.html` con un browser moderno. Non servono installazione, compilazione o dipendenze esterne. Per giocare offline, mantieni la cartella `img` accanto ai file HTML, CSS e JavaScript.
 
-## Come si gioca
+## Comandi
 
-- Muovi il mouse per puntare e fai clic per sparare.
-- Premi **Spazio** per sparare nella posizione del puntatore.
-- Premi **P** per mettere in pausa o riprendere.
-- Usa **Schermo intero** per espandere il gioco.
-- Scegli Facile, Normale o Difficile prima di iniziare; la difficoltà resta bloccata durante la partita e si può cambiare al termine.
-- Ogni papera offre tre colpi: 100 punti se la colpisci al primo, 60 al secondo o 30 al terzo.
-- Se esaurisci i colpi senza colpire, passi alla papera successiva e il round continua.
-- Completa 10 abbattimenti per round. Ci sono 5 round e la velocità aumenta con la difficoltà e con i round.
+| Azione | Mouse e tastiera | Telefono o tablet |
+| --- | --- | --- |
+| Mirare | Muovi il puntatore | Trascina sul campo |
+| Sparare | Clic oppure **Spazio** | Tocca il campo |
+| Pausa / ripresa | **P** oppure pulsante **Pausa** | Pulsante **Pausa** |
+| Schermo intero | Pulsante **Schermo intero** | Pulsante **Schermo intero** |
 
-## Struttura
+Su dispositivi touch, trascinare serve a spostare la mira; rilasciare non spara. Tocca per fare fuoco.
 
-- `index.html` — struttura e comandi del gioco.
-- `style.css` — interfaccia a schermo intero e adattamento agli schermi piccoli.
-- `script.js` — animazione, movimento, punteggio, difficoltà e controlli.
+## Regole e punteggio
+
+- Ogni anatra può essere colpita con un massimo di tre colpi.
+- Un colpo a segno vale **100 punti** al primo tentativo, **60** al secondo e **30** al terzo.
+- Se finiscono i colpi o l'anatra scappa, il bersaglio è mancato e arriva un'altra anatra.
+- Abbatti **10 anatre per round** per avanzare. La partita si completa dopo **5 round**.
+- Quando viene colpita, l'anatra mostra un'animazione di caduta prima del bersaglio successivo.
+- A fine partita trovi punteggio, anatre abbattute e mancate, colpi sparati e precisione. Il record personale viene conservato nel browser sul dispositivo in uso.
+
+## Difficoltà
+
+La difficoltà si sceglie prima della partita e resta bloccata fino alla fine. Influisce sulla velocità iniziale e sul tempo di volo disponibile per ogni bersaglio:
+
+| Livello | Velocità iniziale | Tempo iniziale |
+| --- | ---: | ---: |
+| Facile | 230 | 6 secondi |
+| Normale | 360 | 4,5 secondi |
+| Difficile | 500 | 3,3 secondi |
+
+I valori di velocità sono riferimenti interni al gioco. Nei round successivi le anatre accelerano e hanno meno tempo per attraversare il campo. Dal secondo round seguono traiettorie ondulate, che diventano più ampie; dal quarto possono anche zigzagare o cambiare ampiezza durante il volo.
+
+## File del progetto
+
+- `index.html` — pagina e interfaccia del gioco.
+- `style.css` — grafica, layout e adattamento a schermi piccoli.
+- `script.js` — movimento delle anatre, round, punteggio e comandi.
 - `img/sfondo.png` — scenario di gioco.
-- `img/frame-anatra.png` — sprite sheet delle anatre.
-- `img/frame-cane.png` — animazione del cane che recupera la papera dopo un colpo.
-- `img/mirino.png` — mirino personalizzato.
-- `img/colpi.png` — sprite dei colpi visualizzata nell'interfaccia.
+- `img/frame-anatra.png` — sprite sheet delle anatre in volo.
+- `img/anatra morta frame.png` — frame dell'animazione di caduta.
+- `img/frame-cane.png` — posa del cane nella schermata iniziale.
+- `img/mirino.png` — mirino.
+- `img/colpi.png` — icona delle munizioni.
 
-Le immagini vengono caricate dal browser dalla cartella `img`.
+Le immagini devono restare nella cartella `img`: il gioco le carica direttamente dal browser.
