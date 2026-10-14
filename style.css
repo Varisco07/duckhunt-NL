@@ -157,10 +157,10 @@ h1 span { color: var(--yellow); }
     background-image: url("./img/colpi.png");
     background-repeat: no-repeat;
     background-size: 123px 184px;
-    background-position:
-        calc(-45.76px - var(--ammo-column) * 25.44px)
-        calc(-14.56px - var(--ammo-row) * 40.32px);
     image-rendering: pixelated;
+    background-position:
+        calc(-34.32px - var(--ammo-column) * 19.08px)
+        calc(-14.64px - var(--ammo-row) * 40.2px);
 }
 
 .ammo-icon:nth-child(1) { --ammo-column: 0; }
@@ -369,21 +369,22 @@ kbd {
     .scoreboard {
         top: max(10px, env(safe-area-inset-top));
         right: max(10px, env(safe-area-inset-right));
-        width: min(66vw, 330px);
+        width: min(80vw, 380px);
         min-height: 45px;
+        grid-template-columns: 1fr 1.1fr 1.2fr 1.5fr;
     }
     .score-card { padding: 4px 6px; }
     .score-card span { font-size: 6px; letter-spacing: .06em; }
     .score-card strong { font-size: clamp(12px, 3.8vw, 18px); }
-    .ammo-card #ammoDisplay { min-height: 30px; gap: 0; }
+    .ammo-card #ammoDisplay { min-height: 27px; gap: 0; }
     .ammo-icon {
-        width: 20px;
-        height: 30px;
-        flex-basis: 20px;
-        background-size: 102.5px 153.33px;
+        width: 18px;
+        height: 27px;
+        flex-basis: 18px;
+        background-size: 92.25px 138px;
         background-position:
-            calc(-38.13px - var(--ammo-column) * 21.2px)
-            calc(-12.13px - var(--ammo-row) * 33.6px);
+            calc(-25.74px - var(--ammo-column) * 14.31px)
+            calc(-10.98px - var(--ammo-row) * 30.15px);
     }
     .game-status {
         bottom: max(55px, calc(env(safe-area-inset-bottom) + 49px));
