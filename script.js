@@ -3,6 +3,7 @@ const ctx = canvas.getContext("2d");
 const sceneBackground = new Image();
 const duckSpriteSheet = new Image();
 const crosshairImage = new Image();
+const dogSpriteSheet = new Image();
 const overlay = document.querySelector("#gameOverlay");
 const overlayKicker = document.querySelector("#overlayKicker");
 const overlayTitle = document.querySelector("#overlayTitle");
@@ -27,6 +28,8 @@ const TOTAL_ROUNDS = 5;
 const AMMO_PER_DUCK = 3;
 const DUCK_HIT_SCORES = [100, 60, 30];
 const DUCK_FRAME_COUNT = 9;
+const DOG_RETRIEVAL_TIME = 1.8;
+const DOG_CARRY_FRAMES = [[18, 95], [118, 92], [214, 87], [303, 86]];
 const DUCK_SPRITE_COLUMNS = [
     [[128, 98], [250, 98], [367, 94], [482, 92], [594, 94], [707, 94], [821, 95], [934, 91], [1047, 96]],
     [[128, 94], [245, 93], [362, 88], [470, 94], [587, 93], [701, 89], [815, 92], [931, 97], [1045, 92]],
@@ -64,6 +67,7 @@ const state = {
     score: 0,
     shots: AMMO_PER_DUCK,
     duck: null,
+    dog: null,
     aim: { x: WIDTH / 2, y: HEIGHT / 2, visible: false },
     lastTime: 0,
     roundToken: 0,
@@ -164,9 +168,37 @@ function drawCrosshair() {
     ctx.drawImage(crosshairImage, x - size / 2, y - size / 2, size, size);
 }
 
+function drawDog() {
+    if (!state.dog) return;
+    const progress = Math.min(state.dog.elapsed / DOG_RETRIEVAL_TIME, 1);
+    const frame = Math.floor(state.dog.elapsed / .12) % DOG_CARRY_FRAMES.length;
+    const [frameX, frameWidth] = DOG_CARRY_FRAMES[frame];
+    const frameY = 360;
+    const frameHeight = 83;
+    const scale = Math.min(96 / frameWidth, 82 / frameHeight) * getGameScale();
+    const drawWidth = frameWidth * scale;
+    const drawHeight = frameHeight * scale;
+    const x = -drawWidth + (WIDTH + drawWidth) * progress;
+    const y = HEIGHT * .78;
+
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(
+        dogSpriteSheet,
+        frameX,
+        frameY,
+        frameWidth,
+        frameHeight,
+        x,
+        y - drawHeight / 2,
+        drawWidth,
+        drawHeight,
+    );
+}
+
 function draw() {
     drawBackground();
     if (state.duck) drawDuck(state.duck);
+    drawDog();
     drawCrosshair();
 }
 
@@ -193,17 +225,14 @@ function wait(milliseconds) {
     return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
 }
 
-async function continueGame(token, message) {
+async function continueGame(token, message, showDog = false) {
     state.phase = "between";
     state.duck = null;
+    state.dog = showDog ? { elapsed: 0 } : null;
     state.aim.visible = false;
     pauseButton.disabled = true;
 
     if (state.ducksHit >= DUCKS_PER_ROUND) {
-        if (state.round === TOTAL_ROUNDS) {
-            finishGame();
-            return;
-        }
         setStatus("Round completato: " + state.ducksHit + " papere abbattute. Caricamento del prossimo round…", "loading");
     } else {
         setStatus(message, "loading");
@@ -211,10 +240,15 @@ async function continueGame(token, message) {
 
     updateHud();
     draw();
-    await wait(900);
+    await wait(showDog ? DOG_RETRIEVAL_TIME * 1000 : 900);
     if (state.phase !== "between" || state.roundToken !== token) return;
+    state.dog = null;
 
     if (state.ducksHit >= DUCKS_PER_ROUND) {
+        if (state.round === TOTAL_ROUNDS) {
+            finishGame();
+            return;
+        }
         state.round += 1;
         state.ducksHit = 0;
         updateHud();
@@ -259,6 +293,7 @@ function startGame() {
     state.score = 0;
     state.shots = AMMO_PER_DUCK;
     state.duck = null;
+    state.dog = null;
     overlay.hidden = true;
     updateHud();
     launchDuck();
@@ -319,7 +354,12 @@ function shoot() {
         state.ducksHit += 1;
         state.duck = null;
         updateHud();
-        void continueGame(state.roundToken, "Colpita al colpo " + (AMMO_PER_DUCK - state.shots) + "! +" + points + " punti. Prossimo bersaglio in arrivo…");
+        const shotNumber = AMMO_PER_DUCK - state.shots;
+        void continueGame(
+            state.roundToken,
+            "Colpita al colpo " + shotNumber + "! +" + points + " punti. Prossimo bersaglio in arrivo…",
+            true
+        );
         return;
     }
 
@@ -350,6 +390,7 @@ function frame(now) {
     const deltaTime = Math.min((now - state.lastTime) / 1000, .05);
     state.lastTime = now;
     if (state.phase === "playing") updateDuck(deltaTime);
+    if (state.dog) state.dog.elapsed += deltaTime;
     draw();
     requestAnimationFrame(frame);
 }
@@ -438,6 +479,7 @@ Promise.all([
     loadImage(sceneBackground, "./img/sfondo.png"),
     loadImage(duckSpriteSheet, "./img/frame-anatra.png"),
     loadImage(crosshairImage, "./img/mirino.png"),
+    loadImage(dogSpriteSheet, "./img/frame-cane.png"),
 ]).then(() => {
     state.sceneLoaded = true;
     startButton.disabled = false;
