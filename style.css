@@ -144,28 +144,16 @@ h1 span { color: var(--yellow); }
 }
 
 .ammo-card #ammoDisplay {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 36px;
-}
-
-.ammo-icon {
-    width: 24px;
+    width: 56px;
     height: 36px;
-    flex: 0 0 24px;
     background-image: url("./img/colpi.png");
     background-repeat: no-repeat;
     background-size: 123px 184px;
     image-rendering: pixelated;
     background-position:
-        calc(-34.32px - var(--ammo-column) * 19.08px)
+        -34.32px
         calc(-14.64px - var(--ammo-row) * 40.2px);
 }
-
-.ammo-icon:nth-child(1) { --ammo-column: 0; }
-.ammo-icon:nth-child(2) { --ammo-column: 1; }
-.ammo-icon:nth-child(3) { --ammo-column: 2; }
 
 .play-area, .canvas-wrap {
     position: absolute;
@@ -376,14 +364,12 @@ kbd {
     .score-card { padding: 4px 6px; }
     .score-card span { font-size: 6px; letter-spacing: .06em; }
     .score-card strong { font-size: clamp(12px, 3.8vw, 18px); }
-    .ammo-card #ammoDisplay { min-height: 27px; gap: 0; }
-    .ammo-icon {
-        width: 18px;
+    .ammo-card #ammoDisplay {
+        width: 42px;
         height: 27px;
-        flex-basis: 18px;
         background-size: 92.25px 138px;
         background-position:
-            calc(-25.74px - var(--ammo-column) * 14.31px)
+            -25.74px
             calc(-10.98px - var(--ammo-row) * 30.15px);
     }
     .game-status {
