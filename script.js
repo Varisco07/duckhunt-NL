@@ -1,39 +1,46 @@
-const canvas = document.querySelector("#gameCanvas");
-const ctx = canvas.getContext("2d");
-const sceneBackground = new Image();
-const duckSpriteSheet = new Image();
-const duckDeathSpriteSheet = new Image();
-const crosshairImage = new Image();
-const dogSpriteSheet = new Image();
-const overlay = document.querySelector("#gameOverlay");
-const overlayKicker = document.querySelector("#overlayKicker");
-const overlayTitle = document.querySelector("#overlayTitle");
-const overlayText = document.querySelector("#overlayText");
-const startButton = document.querySelector("#startButton");
-const pauseButton = document.querySelector("#pauseButton");
-const fullscreenButton = document.querySelector("#fullscreenButton");
-const gameShell = document.querySelector(".game-shell");
-const difficultySelect = document.querySelector("#difficultySelect");
-const difficultyReadout = document.querySelector("#difficultyReadout");
-const roundDisplay = document.querySelector("#roundDisplay");
-const hitDisplay = document.querySelector("#hitDisplay");
-const scoreDisplay = document.querySelector("#scoreDisplay");
-const bestScoreDisplay = document.querySelector("#bestScoreDisplay");
-const ammoDisplay = document.querySelector("#ammoDisplay");
-const statusText = document.querySelector("#statusText");
-const statusDot = document.querySelector("#statusDot");
+const telaGioco = document.querySelector("#gameCanvas");
+const contesto = telaGioco.getContext("2d");
+const immagineSfondo = new Image();
+const spriteAnatre = new Image();
+const spriteCaduta = new Image();
+const immagineMirino = new Image();
+const spriteCane = new Image();
+const SFONDI_TURNI = [
+    { immagine: immagineSfondo, percorso: "./img/sfondo.png", etichetta: "Prato classico" },
+    { immagine: new Image(), percorso: "./img/sfondo primavera.png", etichetta: "Primavera" },
+    { immagine: new Image(), percorso: "./img/sfondo autunno.png", etichetta: "Autunno" },
+    { immagine: new Image(), percorso: "./img/sfondo inverno.png", etichetta: "Inverno" },
+    { immagine: new Image(), percorso: "./img/sfondo galassia.png", etichetta: "Galassia" },
+];
+const pannelloOverlay = document.querySelector("#gameOverlay");
+const sottotitoloOverlay = document.querySelector("#overlayKicker");
+const titoloOverlay = document.querySelector("#overlayTitle");
+const testoOverlay = document.querySelector("#overlayText");
+const pulsanteAvvio = document.querySelector("#startButton");
+const pulsantePausa = document.querySelector("#pauseButton");
+const pulsanteSchermoIntero = document.querySelector("#fullscreenButton");
+const contenitoreGioco = document.querySelector(".game-shell");
+const selettoreDifficolta = document.querySelector("#difficultySelect");
+const testoDifficolta = document.querySelector("#difficultyReadout");
+const testoTurno = document.querySelector("#roundDisplay");
+const testoBersagli = document.querySelector("#hitDisplay");
+const testoPunteggio = document.querySelector("#scoreDisplay");
+const testoRecord = document.querySelector("#bestScoreDisplay");
+const testoColpi = document.querySelector("#ammoDisplay");
+const testoStato = document.querySelector("#statusText");
+const puntoStato = document.querySelector("#statusDot");
 
-let WIDTH = 800;
-let HEIGHT = 480;
-const DUCKS_PER_ROUND = 10;
-const TOTAL_ROUNDS = 5;
-const AMMO_PER_DUCK = 3;
-const DUCK_HIT_SCORES = [100, 60, 30];
-const DUCK_FRAME_COUNT = 9;
-const DUCK_FALL_TIME = 1.05;
-const DUCK_DEATH_FRAME_TIME = DUCK_FALL_TIME / 16;
-const BEST_SCORE_KEY = "duck-hunt-best-score";
-const DUCK_DEATH_FRAMES = [
+let LARGHEZZA = 800;
+let ALTEZZA = 480;
+const BERSAGLI_PER_TURNO = 10;
+const NUMERO_TURNI = 5;
+const COLPI_PER_ANATRA = 3;
+const PUNTI_PER_COLPO = [100, 60, 30];
+const NUMERO_FOTOGRAMMI = 9;
+const DURATA_CADUTA = 1.05;
+const TEMPO_FOTOGRAMMA_CADUTA = DURATA_CADUTA / 16;
+const CHIAVE_RECORD = "duck-hunt-best-score";
+const FOTOGRAMMI_CADUTA = [
     { x: 36, y: 120, width: 231, height: 205 },
     { x: 284, y: 125, width: 224, height: 210 },
     { x: 534, y: 124, width: 224, height: 212 },
@@ -51,7 +58,7 @@ const DUCK_DEATH_FRAMES = [
     { x: 533, y: 1191, width: 222, height: 174 },
     { x: 786, y: 1226, width: 233, height: 149 },
 ];
-const DUCK_SPRITE_COLUMNS = [
+const COLONNE_SPRITE_ANATRE = [
     [[128, 98], [250, 98], [367, 94], [482, 92], [594, 94], [707, 94], [821, 95], [934, 91], [1047, 96]],
     [[128, 94], [245, 93], [362, 88], [470, 94], [587, 93], [701, 89], [815, 92], [931, 97], [1045, 92]],
     [[135, 85], [255, 92], [366, 94], [487, 88], [594, 92], [706, 90], [829, 87], [944, 84], [1048, 94]],
@@ -59,7 +66,7 @@ const DUCK_SPRITE_COLUMNS = [
     [[136, 91], [249, 93], [366, 93], [485, 85], [588, 94], [708, 90], [822, 90], [933, 92], [1050, 88]],
     [[130, 90], [245, 90], [361, 88], [479, 90], [596, 87], [707, 87], [822, 87], [935, 84], [1045, 87]],
 ];
-const DUCK_SPRITE_TOPS = [
+const BORDI_SUPERIORI_ANATRE = [
     [43, 23, 35, 16, 43, 43, 18, 16, 43],
     [37, 15, 11, 28, 36, 12, 14, 37, 37],
     [20, 9, 20, 9, 19, 18, 11, 15, 20],
@@ -67,7 +74,7 @@ const DUCK_SPRITE_TOPS = [
     [32, 8, 23, 24, 29, 29, 8, 9, 28],
     [21, 6, 18, 13, 23, 6, 5, 12, 20],
 ];
-const DUCK_SPRITE_BOTTOMS = [
+const BORDI_INFERIORI_ANATRE = [
     [95, 85, 84, 86, 91, 94, 86, 86, 95],
     [88, 79, 79, 78, 85, 78, 79, 87, 88],
     [92, 84, 82, 80, 88, 91, 80, 79, 90],
@@ -75,680 +82,718 @@ const DUCK_SPRITE_BOTTOMS = [
     [82, 73, 75, 78, 73, 80, 73, 72, 79],
     [75, 70, 70, 72, 69, 70, 70, 72, 74],
 ];
-const DIFFICULTIES = {
-    easy: { label: "Facile", flightTime: 6, speed: 230 },
-    normal: { label: "Normale", flightTime: 4.5, speed: 360 },
-    hard: { label: "Difficile", flightTime: 3.3, speed: 500 },
+const LIVELLI_DIFFICOLTA = {
+    facile: { etichetta: "Facile", tempoVolo: 6, velocita: 230 },
+    normale: { etichetta: "Normale", tempoVolo: 4.5, velocita: 360 },
+    difficile: { etichetta: "Difficile", tempoVolo: 3.3, velocita: 500 },
 };
 
-const state = {
-    phase: "ready",
-    round: 1,
-    ducksHit: 0,
-    totalDucksHit: 0,
-    ducksEscaped: 0,
-    shotsFired: 0,
-    score: 0,
-    bestScore: 0,
-    recordAvailable: true,
-    shots: AMMO_PER_DUCK,
-    duck: null,
-    fallingDuck: null,
-    shotFeedback: null,
-    touchGesture: null,
-    aim: { x: WIDTH / 2, y: HEIGHT / 2, visible: false },
-    lastTime: 0,
-    roundToken: 0,
-    sceneLoaded: false,
+const statoGioco = {
+    fase: "pronta",
+    turno: 1,
+    bersagliTurno: 0,
+    anatreColpite: 0,
+    anatreMancate: 0,
+    colpiSparati: 0,
+    punteggio: 0,
+    recordPersonale: 0,
+    recordDisponibile: true,
+    colpi: COLPI_PER_ANATRA,
+    anatra: null,
+    anatraInCaduta: null,
+    esitoColpo: null,
+    gestoTouch: null,
+    mira: { x: LARGHEZZA / 2, y: ALTEZZA / 2, visibile: false },
+    ultimoTempo: 0,
+    gettonePartita: 0,
+    graficaCaricata: false,
 };
 
-function fitCanvas() {
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    const bounds = canvas.getBoundingClientRect();
-    if (!bounds.width || !bounds.height) return;
+function adattaCanvas() {
+    const fattorePixel = Math.min(window.devicePixelRatio || 1, 2);
+    const limiti = telaGioco.getBoundingClientRect();
+    if (!limiti.width || !limiti.height) return;
 
-    const oldWidth = WIDTH;
-    const oldHeight = HEIGHT;
-    WIDTH = bounds.width;
-    HEIGHT = bounds.height;
-    canvas.width = Math.round(WIDTH * ratio);
-    canvas.height = Math.round(HEIGHT * ratio);
-    ctx.setTransform(canvas.width / WIDTH, 0, 0, canvas.height / HEIGHT, 0, 0);
+    const vecchiaLarghezza = LARGHEZZA;
+    const vecchiaAltezza = ALTEZZA;
+    LARGHEZZA = limiti.width;
+    ALTEZZA = limiti.height;
+    telaGioco.width = Math.round(LARGHEZZA * fattorePixel);
+    telaGioco.height = Math.round(ALTEZZA * fattorePixel);
+    contesto.setTransform(telaGioco.width / LARGHEZZA, 0, 0, telaGioco.height / ALTEZZA, 0, 0);
 
-    const widthScale = WIDTH / oldWidth;
-    const heightScale = HEIGHT / oldHeight;
-    if (state.duck) {
-        state.duck.x *= widthScale;
-        state.duck.y *= heightScale;
-        state.duck.baseY *= heightScale;
-        state.duck.vx *= widthScale;
-        state.duck.vy *= heightScale;
-        state.duck.pathAmplitude *= heightScale;
+    const scalaLarghezza = LARGHEZZA / vecchiaLarghezza;
+    const scalaAltezza = ALTEZZA / vecchiaAltezza;
+    if (statoGioco.anatra) {
+        statoGioco.anatra.x *= scalaLarghezza;
+        statoGioco.anatra.y *= scalaAltezza;
+        statoGioco.anatra.quotaBase *= scalaAltezza;
+        statoGioco.anatra.velocitaX *= scalaLarghezza;
+        statoGioco.anatra.velocitaY *= scalaAltezza;
+        statoGioco.anatra.ampiezzaTraiettoria *= scalaAltezza;
     }
-    if (state.fallingDuck) {
-        state.fallingDuck.x *= widthScale;
-        state.fallingDuck.startY *= heightScale;
-        state.fallingDuck.vx *= widthScale;
+    if (statoGioco.anatraInCaduta) {
+        statoGioco.anatraInCaduta.x *= scalaLarghezza;
+        statoGioco.anatraInCaduta.inizioY *= scalaAltezza;
+        statoGioco.anatraInCaduta.velocitaX *= scalaLarghezza;
     }
-    if (state.shotFeedback) {
-        state.shotFeedback.x *= widthScale;
-        state.shotFeedback.y *= heightScale;
+    if (statoGioco.esitoColpo) {
+        statoGioco.esitoColpo.x *= scalaLarghezza;
+        statoGioco.esitoColpo.y *= scalaAltezza;
     }
-    state.aim.x = WIDTH / 2;
-    state.aim.y = HEIGHT / 2;
-    draw();
+    statoGioco.mira.x = LARGHEZZA / 2;
+    statoGioco.mira.y = ALTEZZA / 2;
+    disegna();
 }
 
-function getGameScale() {
-    return Math.max(.65, Math.min(WIDTH / 800, HEIGHT / 480, 2));
+function scalaGioco() {
+    return Math.max(.65, Math.min(LARGHEZZA / 800, ALTEZZA / 480, 2));
 }
 
-function setStatus(message, mode = "") {
-    statusText.textContent = message;
-    statusDot.className = "status-dot" + (mode ? " is-" + mode : "");
+function mostraStato(messaggio, modalita = "") {
+    testoStato.textContent = messaggio;
+    puntoStato.className = "status-dot" + (modalita ? " is-" + modalita : "");
 }
 
-function updateHud() {
-    roundDisplay.textContent = state.phase === "ready" ? "—" : state.round + " / " + TOTAL_ROUNDS;
-    hitDisplay.textContent = state.ducksHit + " / " + DUCKS_PER_ROUND;
-    scoreDisplay.textContent = String(state.score).padStart(5, "0");
-    bestScoreDisplay.textContent = state.recordAvailable
-        ? String(state.bestScore).padStart(5, "0")
+function aggiornaPannello() {
+    testoTurno.textContent = statoGioco.fase === "pronta" ? "—" : statoGioco.turno + " / " + NUMERO_TURNI;
+    testoBersagli.textContent = statoGioco.bersagliTurno + " / " + BERSAGLI_PER_TURNO;
+    testoPunteggio.textContent = String(statoGioco.punteggio).padStart(5, "0");
+    testoRecord.textContent = statoGioco.recordDisponibile
+        ? String(statoGioco.recordPersonale).padStart(5, "0")
         : "—";
-    const ammoRow = AMMO_PER_DUCK - state.shots;
-    ammoDisplay.style.setProperty("--ammo-row", ammoRow);
-    ammoDisplay.setAttribute(
+    const rigaColpi = COLPI_PER_ANATRA - statoGioco.colpi;
+    testoColpi.style.setProperty("--ammo-row", rigaColpi);
+    testoColpi.setAttribute(
         "aria-label",
-        state.shots === 1 ? "1 colpo rimasto" : state.shots + " colpi rimasti"
+        statoGioco.colpi === 1 ? "1 colpo rimasto" : statoGioco.colpi + " colpi rimasti"
     );
 }
 
-function drawBackground() {
-    ctx.fillStyle = "#2599ee";
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    if (!state.sceneLoaded) return;
+function disegnaSfondo() {
+    contesto.fillStyle = "#2599ee";
+    contesto.fillRect(0, 0, LARGHEZZA, ALTEZZA);
+    if (!statoGioco.graficaCaricata) return;
 
-    const scale = Math.max(WIDTH / sceneBackground.naturalWidth, HEIGHT / sceneBackground.naturalHeight);
-    const imageWidth = sceneBackground.naturalWidth * scale;
-    const imageHeight = sceneBackground.naturalHeight * scale;
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(sceneBackground, (WIDTH - imageWidth) / 2, (HEIGHT - imageHeight) / 2, imageWidth, imageHeight);
+    const sfondo = SFONDI_TURNI[statoGioco.turno - 1].immagine;
+    const scala = Math.max(LARGHEZZA / sfondo.naturalWidth, ALTEZZA / sfondo.naturalHeight);
+    const larghezzaImmagine = sfondo.naturalWidth * scala;
+    const altezzaImmagine = sfondo.naturalHeight * scala;
+    contesto.imageSmoothingEnabled = false;
+    contesto.drawImage(sfondo, (LARGHEZZA - larghezzaImmagine) / 2, (ALTEZZA - altezzaImmagine) / 2, larghezzaImmagine, altezzaImmagine);
 }
 
-function drawDuck(duck) {
-    const direction = duck.vx < 0 ? -1 : 1;
-    const row = Math.abs(duck.vy) > Math.abs(duck.vx) * .45
-        ? duck.vy < 0 ? (direction > 0 ? 2 : 3) : (direction > 0 ? 4 : 5)
-        : direction > 0 ? 0 : 1;
-    const [frameX, frameWidth] = DUCK_SPRITE_COLUMNS[row][duck.frame];
-    const frameTop = DUCK_SPRITE_TOPS[row][duck.frame];
-    const frameBottom = DUCK_SPRITE_BOTTOMS[row][duck.frame];
-    const sourceWidth = frameWidth + 4;
-    const sourceHeight = frameBottom - frameTop + 5;
-    const spriteScale = Math.min(82 / sourceWidth, 68 / sourceHeight);
-    const drawWidth = sourceWidth * spriteScale;
-    const drawHeight = sourceHeight * spriteScale;
-    ctx.save();
-    ctx.translate(duck.x, duck.y);
-    ctx.scale(getGameScale(), getGameScale());
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(
-        duckSpriteSheet,
-        frameX - 2,
-        row * 128 + frameTop - 2,
-        sourceWidth,
-        sourceHeight,
-        -drawWidth / 2,
-        -drawHeight / 2,
-        drawWidth,
-        drawHeight,
+function disegnaAnatra(anatra) {
+    const direzione = anatra.velocitaX < 0 ? -1 : 1;
+    const riga = Math.abs(anatra.velocitaY) > Math.abs(anatra.velocitaX) * .45
+        ? anatra.velocitaY < 0 ? (direzione > 0 ? 2 : 3) : (direzione > 0 ? 4 : 5)
+        : direzione > 0 ? 0 : 1;
+    const [inizioXFotogramma, larghezzaFotogramma] = COLONNE_SPRITE_ANATRE[riga][anatra.fotogramma];
+    const inizioFotogramma = BORDI_SUPERIORI_ANATRE[riga][anatra.fotogramma];
+    const fineFotogramma = BORDI_INFERIORI_ANATRE[riga][anatra.fotogramma];
+    const larghezzaSorgente = larghezzaFotogramma + 4;
+    const altezzaSorgente = fineFotogramma - inizioFotogramma + 5;
+    const scalaSprite = Math.min(82 / larghezzaSorgente, 68 / altezzaSorgente);
+    const larghezzaDisegno = larghezzaSorgente * scalaSprite;
+    const altezzaDisegno = altezzaSorgente * scalaSprite;
+    contesto.save();
+    contesto.translate(anatra.x, anatra.y);
+    contesto.scale(scalaGioco(), scalaGioco());
+    contesto.imageSmoothingEnabled = false;
+    contesto.drawImage(
+        spriteAnatre,
+        inizioXFotogramma - 2,
+        riga * 128 + inizioFotogramma - 2,
+        larghezzaSorgente,
+        altezzaSorgente,
+        -larghezzaDisegno / 2,
+        -altezzaDisegno / 2,
+        larghezzaDisegno,
+        altezzaDisegno,
     );
-    ctx.restore();
+    contesto.restore();
 }
 
-function drawCrosshair() {
-    if (!state.aim.visible || state.phase !== "playing") return;
-    const { x, y } = state.aim;
-    const size = 48 * getGameScale();
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(crosshairImage, x - size / 2, y - size / 2, size, size);
+function disegnaMirino() {
+    if (!statoGioco.mira.visibile || statoGioco.fase !== "inCorso") return;
+    const { x, y } = statoGioco.mira;
+    const dimensione = 48 * scalaGioco();
+    contesto.imageSmoothingEnabled = false;
+    contesto.drawImage(immagineMirino, x - dimensione / 2, y - dimensione / 2, dimensione, dimensione);
 }
 
-function drawFallingDuck() {
-    const fallingDuck = state.fallingDuck;
-    if (!fallingDuck) return;
+function disegnaCaduta() {
+    const anatraInCaduta = statoGioco.anatraInCaduta;
+    if (!anatraInCaduta) return;
 
-    const progress = Math.min(fallingDuck.elapsed / DUCK_FALL_TIME, 1);
-    const frame = DUCK_DEATH_FRAMES[Math.min(
-        Math.floor(fallingDuck.elapsed / DUCK_DEATH_FRAME_TIME),
-        DUCK_DEATH_FRAMES.length - 1
+    const progresso = Math.min(anatraInCaduta.tempoTrascorso / DURATA_CADUTA, 1);
+    const fotogramma = FOTOGRAMMI_CADUTA[Math.min(
+        Math.floor(anatraInCaduta.tempoTrascorso / TEMPO_FOTOGRAMMA_CADUTA),
+        FOTOGRAMMI_CADUTA.length - 1
     )];
-    const scale = getGameScale() * .48;
-    const drawWidth = frame.width * scale;
-    const drawHeight = frame.height * scale;
-    const x = fallingDuck.x + fallingDuck.vx * fallingDuck.elapsed;
-    const y = fallingDuck.startY + (HEIGHT * .78 - fallingDuck.startY) * progress * progress;
+    const scala = scalaGioco() * .48;
+    const larghezzaDisegno = fotogramma.width * scala;
+    const altezzaDisegno = fotogramma.height * scala;
+    const x = anatraInCaduta.x + anatraInCaduta.velocitaX * anatraInCaduta.tempoTrascorso;
+    const y = anatraInCaduta.inizioY + (ALTEZZA * .78 - anatraInCaduta.inizioY) * progresso * progresso;
 
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(
-        duckDeathSpriteSheet,
-        frame.x,
-        frame.y,
-        frame.width,
-        frame.height,
-        -drawWidth / 2,
-        -drawHeight / 2,
-        drawWidth,
-        drawHeight,
+    contesto.save();
+    contesto.translate(x, y);
+    contesto.imageSmoothingEnabled = false;
+    contesto.drawImage(
+        spriteCaduta,
+        fotogramma.x,
+        fotogramma.y,
+        fotogramma.width,
+        fotogramma.height,
+        -larghezzaDisegno / 2,
+        -altezzaDisegno / 2,
+        larghezzaDisegno,
+        altezzaDisegno,
     );
-    ctx.restore();
+    contesto.restore();
 }
 
-function drawShotFeedback() {
-    const feedback = state.shotFeedback;
-    if (!feedback) return;
+function disegnaEsitoColpo() {
+    const riscontro = statoGioco.esitoColpo;
+    if (!riscontro) return;
 
-    const progress = feedback.elapsed / .52;
-    const scale = getGameScale();
-    const radius = (9 + progress * 27) * scale;
-    const alpha = 1 - progress;
-    const color = feedback.hit ? "#f6cf58" : "#ed6858";
+    const progresso = riscontro.tempoTrascorso / .52;
+    const scala = scalaGioco();
+    const raggio = (9 + progresso * 27) * scala;
+    const opacita = 1 - progresso;
+    const colore = riscontro.colpita ? "#f6cf58" : "#ed6858";
 
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.strokeStyle = color;
-    ctx.fillStyle = color;
-    ctx.lineWidth = 3 * scale;
-    ctx.beginPath();
-    ctx.arc(feedback.x, feedback.y, radius, 0, Math.PI * 2);
-    ctx.stroke();
+    contesto.save();
+    contesto.globalAlpha = opacita;
+    contesto.strokeStyle = colore;
+    contesto.fillStyle = colore;
+    contesto.lineWidth = 3 * scala;
+    contesto.beginPath();
+    contesto.arc(riscontro.x, riscontro.y, raggio, 0, Math.PI * 2);
+    contesto.stroke();
 
-    if (feedback.hit) {
-        for (let index = 0; index < 8; index += 1) {
-            const angle = index * Math.PI / 4;
-            const innerRadius = radius * .75;
-            const outerRadius = radius + (8 + (index % 3) * 4) * scale;
-            ctx.beginPath();
-            ctx.moveTo(
-                feedback.x + Math.cos(angle) * innerRadius,
-                feedback.y + Math.sin(angle) * innerRadius
+    if (riscontro.colpita) {
+        for (let indice = 0; indice < 8; indice += 1) {
+            const angolo = indice * Math.PI / 4;
+            const raggioInterno = raggio * .75;
+            const raggioEsterno = raggio + (8 + (indice % 3) * 4) * scala;
+            contesto.beginPath();
+            contesto.moveTo(
+                riscontro.x + Math.cos(angolo) * raggioInterno,
+                riscontro.y + Math.sin(angolo) * raggioInterno
             );
-            ctx.lineTo(
-                feedback.x + Math.cos(angle) * outerRadius,
-                feedback.y + Math.sin(angle) * outerRadius
+            contesto.lineTo(
+                riscontro.x + Math.cos(angolo) * raggioEsterno,
+                riscontro.y + Math.sin(angolo) * raggioEsterno
             );
-            ctx.stroke();
+            contesto.stroke();
         }
     } else {
-        ctx.beginPath();
-        ctx.moveTo(feedback.x - 7 * scale, feedback.y - 7 * scale);
-        ctx.lineTo(feedback.x + 7 * scale, feedback.y + 7 * scale);
-        ctx.moveTo(feedback.x + 7 * scale, feedback.y - 7 * scale);
-        ctx.lineTo(feedback.x - 7 * scale, feedback.y + 7 * scale);
-        ctx.stroke();
+        contesto.beginPath();
+        contesto.moveTo(riscontro.x - 7 * scala, riscontro.y - 7 * scala);
+        contesto.lineTo(riscontro.x + 7 * scala, riscontro.y + 7 * scala);
+        contesto.moveTo(riscontro.x + 7 * scala, riscontro.y - 7 * scala);
+        contesto.lineTo(riscontro.x - 7 * scala, riscontro.y + 7 * scala);
+        contesto.stroke();
     }
 
-    ctx.font = "700 " + 13 * scale + "px Consolas, monospace";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
-    ctx.strokeStyle = "rgba(0, 0, 0, .8)";
-    ctx.lineWidth = 3 * scale;
-    const label = feedback.hit ? "+" + feedback.points : "MANCATO";
-    ctx.strokeText(label, feedback.x, feedback.y - radius - 4 * scale);
-    ctx.fillStyle = color;
-    ctx.fillText(label, feedback.x, feedback.y - radius - 4 * scale);
-    ctx.restore();
+    contesto.font = "700 " + 13 * scala + "px Consolas, monospace";
+    contesto.textAlign = "center";
+    contesto.textBaseline = "bottom";
+    contesto.strokeStyle = "rgba(0, 0, 0, .8)";
+    contesto.lineWidth = 3 * scala;
+    const etichetta = riscontro.colpita ? "+" + riscontro.punti : "MANCATO";
+    contesto.strokeText(etichetta, riscontro.x, riscontro.y - raggio - 4 * scala);
+    contesto.fillStyle = colore;
+    contesto.fillText(etichetta, riscontro.x, riscontro.y - raggio - 4 * scala);
+    contesto.restore();
 }
 
-function drawIntroDog() {
-    if (state.phase !== "ready" || !state.sceneLoaded) return;
-    const frame = { x: 26, y: 46, width: 70, height: 89 };
-    const scale = 78 / frame.height * getGameScale();
-    const drawWidth = frame.width * scale;
-    const drawHeight = frame.height * scale;
-    const x = WIDTH * .5;
-    const y = HEIGHT * .78;
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(
-        dogSpriteSheet,
-        frame.x,
-        frame.y,
-        frame.width,
-        frame.height,
-        x - drawWidth / 2,
-        y - drawHeight / 2,
-        drawWidth,
-        drawHeight,
+function disegnaCaneIntro() {
+    if (statoGioco.fase !== "pronta" || !statoGioco.graficaCaricata) return;
+    const fotogramma = { x: 26, y: 46, width: 70, height: 89 };
+    const scala = 78 / fotogramma.height * scalaGioco();
+    const larghezzaDisegno = fotogramma.width * scala;
+    const altezzaDisegno = fotogramma.height * scala;
+    const x = LARGHEZZA * .5;
+    const y = ALTEZZA * .78;
+    contesto.imageSmoothingEnabled = false;
+    contesto.drawImage(
+        spriteCane,
+        fotogramma.x,
+        fotogramma.y,
+        fotogramma.width,
+        fotogramma.height,
+        x - larghezzaDisegno / 2,
+        y - altezzaDisegno / 2,
+        larghezzaDisegno,
+        altezzaDisegno,
     );
 }
 
-function draw() {
-    drawBackground();
-    if (state.duck) drawDuck(state.duck);
-    drawFallingDuck();
-    drawShotFeedback();
-    drawIntroDog();
-    drawCrosshair();
+function disegna() {
+    disegnaSfondo();
+    if (statoGioco.anatra) disegnaAnatra(statoGioco.anatra);
+    disegnaCaduta();
+    disegnaEsitoColpo();
+    disegnaCaneIntro();
+    disegnaMirino();
 }
 
-function createDuck() {
-    const settings = DIFFICULTIES[difficultySelect.value];
-    const scale = getGameScale();
-    const direction = Math.random() < .5 ? -1 : 1;
-    const roundSpeed = settings.speed * (1 + (state.round - 1) * .18);
-    const speed = roundSpeed * scale;
-    const hasWavyPath = state.round >= 2;
-    const baseY = hasWavyPath
-        ? HEIGHT * (.28 + Math.random() * .2)
-        : HEIGHT * (.15 + Math.random() * .38);
-    const pathTypes = state.round >= 4 ? ["wave", "weave", "swoop"] : ["wave"];
-    state.duck = {
-        x: direction === 1 ? -40 * scale : WIDTH + 40 * scale,
-        y: baseY,
-        baseY,
-        vx: direction * speed,
-        vy: hasWavyPath ? 0 : (Math.random() - .5) * speed * .72,
-        pathType: hasWavyPath
-            ? pathTypes[Math.floor(Math.random() * pathTypes.length)]
-            : "straight",
-        pathAmplitude: hasWavyPath
-            ? Math.min(7 + (state.round - 2) * 7, HEIGHT * .14)
+function creaAnatra() {
+    const impostazioni = LIVELLI_DIFFICOLTA[selettoreDifficolta.value];
+    const scala = scalaGioco();
+    const direzione = Math.random() < .5 ? -1 : 1;
+    const velocitaTurno = impostazioni.velocita * (1 + (statoGioco.turno - 1) * .18);
+    const velocita = velocitaTurno * scala;
+    const haTraiettoriaOndulata = statoGioco.turno >= 2;
+    const quotaBase = haTraiettoriaOndulata
+        ? ALTEZZA * (.28 + Math.random() * .2)
+        : ALTEZZA * (.15 + Math.random() * .38);
+    const tipiTraiettoria = statoGioco.turno >= 4 ? ["onda", "zigzag", "tuffo"] : ["onda"];
+    statoGioco.anatra = {
+        x: direzione === 1 ? -40 * scala : LARGHEZZA + 40 * scala,
+        y: quotaBase,
+        quotaBase,
+        velocitaX: direzione * velocita,
+        velocitaY: haTraiettoriaOndulata ? 0 : (Math.random() - .5) * velocita * .72,
+        tipoTraiettoria: haTraiettoriaOndulata
+            ? tipiTraiettoria[Math.floor(Math.random() * tipiTraiettoria.length)]
+            : "lineare",
+        ampiezzaTraiettoria: haTraiettoriaOndulata
+            ? Math.min(7 + (statoGioco.turno - 2) * 7, ALTEZZA * .14)
             : 0,
-        pathFrequency: 1.7 + state.round * .25,
-        pathPhase: Math.random() * Math.PI * 2,
-        pathTime: 0,
-        timeLeft: Math.max(2.1, settings.flightTime - (state.round - 1) * .35),
-        frame: 0,
-        frameTimer: 0,
+        frequenzaTraiettoria: 1.7 + statoGioco.turno * .25,
+        faseTraiettoria: Math.random() * Math.PI * 2,
+        tempoTraiettoria: 0,
+        tempoResiduo: Math.max(2.1, impostazioni.tempoVolo - (statoGioco.turno - 1) * .35),
+        fotogramma: 0,
+        timerFotogramma: 0,
     };
-    state.shots = AMMO_PER_DUCK;
-    updateHud();
+    statoGioco.colpi = COLPI_PER_ANATRA;
+    aggiornaPannello();
 }
 
-function wait(milliseconds) {
-    return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+function attendi(millisecondi) {
+    return new Promise((completa) => window.setTimeout(completa, millisecondi));
 }
 
-async function continueGame(token, message, showFallingDuck = false) {
-    state.phase = "between";
-    state.duck = null;
-    if (!showFallingDuck) state.fallingDuck = null;
-    state.aim.visible = false;
-    pauseButton.disabled = true;
+async function continuaPartita(gettone, messaggio, mostraCaduta = false) {
+    // Ogni esito consuma un bersaglio: anche tre tiri a vuoto fanno avanzare l'indice.
+    statoGioco.fase = "traBersagli";
+    statoGioco.anatra = null;
+    statoGioco.bersagliTurno += 1;
+    if (!mostraCaduta) statoGioco.anatraInCaduta = null;
+    statoGioco.mira.visibile = false;
+    pulsantePausa.disabled = true;
 
-    if (state.ducksHit >= DUCKS_PER_ROUND) {
-        setStatus("Round completato: " + state.ducksHit + " papere abbattute. Caricamento del prossimo round…", "loading");
+    if (statoGioco.bersagliTurno >= BERSAGLI_PER_TURNO) {
+        mostraStato("Hai affrontato tutti i bersagli del turno. Caricamento del prossimo turno…", "loading");
     } else {
-        setStatus(message, "loading");
+        mostraStato(
+            messaggio + " Prossimo bersaglio: " + (statoGioco.bersagliTurno + 1) + "/" + BERSAGLI_PER_TURNO + ".",
+            "loading"
+        );
     }
 
-    updateHud();
-    draw();
-    await wait(showFallingDuck ? DUCK_FALL_TIME * 1000 : 900);
-    if (state.phase !== "between" || state.roundToken !== token) return;
-    state.fallingDuck = null;
+    aggiornaPannello();
+    disegna();
+    await attendi(mostraCaduta ? DURATA_CADUTA * 1000 : 900);
+    if (statoGioco.fase !== "traBersagli" || statoGioco.gettonePartita !== gettone) return;
+    statoGioco.anatraInCaduta = null;
 
-    if (state.ducksHit >= DUCKS_PER_ROUND) {
-        if (state.round === TOTAL_ROUNDS) {
-            finishGame();
+    if (statoGioco.bersagliTurno >= BERSAGLI_PER_TURNO) {
+        if (statoGioco.turno === NUMERO_TURNI) {
+            terminaPartita();
             return;
         }
-        state.round += 1;
-        state.ducksHit = 0;
-        updateHud();
+        statoGioco.turno += 1;
+        statoGioco.bersagliTurno = 0;
+        aggiornaPannello();
+        await mostraIntroTurno(gettone);
+        return;
     }
 
-    launchDuck();
+    lanciaAnatra();
 }
 
-function finishGame() {
-    state.phase = "finished";
-    state.roundToken += 1;
-    state.duck = null;
-    state.aim.visible = false;
-    pauseButton.disabled = true;
-    const isNewRecord = state.score > state.bestScore;
-    if (isNewRecord && state.recordAvailable) {
+async function mostraIntroTurno(gettone) {
+    const scenario = SFONDI_TURNI[statoGioco.turno - 1];
+    statoGioco.fase = "traRound";
+    statoGioco.anatra = null;
+    statoGioco.anatraInCaduta = null;
+    statoGioco.mira.visibile = false;
+    sottotitoloOverlay.textContent = "Nuovo scenario · " + scenario.etichetta;
+    titoloOverlay.textContent = "ROUND " + statoGioco.turno;
+    testoOverlay.textContent = BERSAGLI_PER_TURNO + " bersagli · la caccia continua";
+    pannelloOverlay.classList.add("is-round-intro");
+    pulsanteAvvio.hidden = true;
+    pannelloOverlay.hidden = false;
+    mostraStato("Preparati per il round " + statoGioco.turno + ".", "loading");
+    aggiornaPannello();
+    disegna();
+
+    await attendi(1800);
+    if (statoGioco.fase !== "traRound" || statoGioco.gettonePartita !== gettone) return;
+
+    pannelloOverlay.hidden = true;
+    pannelloOverlay.classList.remove("is-round-intro");
+    pulsanteAvvio.hidden = false;
+    lanciaAnatra();
+}
+
+function terminaPartita() {
+    statoGioco.fase = "conclusa";
+    statoGioco.gettonePartita += 1;
+    statoGioco.anatra = null;
+    statoGioco.mira.visibile = false;
+    pulsantePausa.disabled = true;
+    const nuovoRecord = statoGioco.punteggio > statoGioco.recordPersonale;
+    if (nuovoRecord && statoGioco.recordDisponibile) {
         try {
-            window.localStorage.setItem(BEST_SCORE_KEY, String(state.score));
-            state.bestScore = state.score;
-        } catch (error) {
-            state.recordAvailable = false;
+            window.localStorage.setItem(CHIAVE_RECORD, String(statoGioco.punteggio));
+            statoGioco.recordPersonale = statoGioco.punteggio;
+        } catch (errore) {
+            statoGioco.recordDisponibile = false;
         }
     }
-    const accuracy = state.shotsFired
-        ? Math.round(state.totalDucksHit / state.shotsFired * 100)
+    const precisione = statoGioco.colpiSparati
+        ? Math.round(statoGioco.anatreColpite / statoGioco.colpiSparati * 100)
         : 0;
-    overlayKicker.textContent = "Partita conclusa";
-    overlayTitle.textContent = isNewRecord && state.recordAvailable ? "Nuovo record!" : "Bella mira!";
-    overlayText.textContent =
-        "Punteggio: " + state.score + " punti" +
-        "\nPapere abbattute: " + state.totalDucksHit + " / " + (DUCKS_PER_ROUND * TOTAL_ROUNDS) +
-        " · mancate: " + state.ducksEscaped +
-        "\nPrecisione: " + accuracy + "% · colpi sparati: " + state.shotsFired +
-        "\nRecord personale: " + (state.recordAvailable ? state.bestScore + " punti" : "salvataggio non disponibile") +
+    sottotitoloOverlay.textContent = "Partita conclusa";
+    titoloOverlay.textContent = nuovoRecord && statoGioco.recordDisponibile ? "Nuovo record!" : "Bella mira!";
+    testoOverlay.textContent =
+        "Punteggio: " + statoGioco.punteggio + " punti" +
+        "\nPapere abbattute: " + statoGioco.anatreColpite + " / " + (BERSAGLI_PER_TURNO * NUMERO_TURNI) +
+        " · mancate: " + statoGioco.anatreMancate +
+        "\nPrecisione: " + precisione + "% · colpi sparati: " + statoGioco.colpiSparati +
+        "\nRecord personale: " + (statoGioco.recordDisponibile ? statoGioco.recordPersonale + " punti" : "salvataggio non disponibile") +
         "\nVuoi fare un'altra partita?";
-    startButton.textContent = "Gioca ancora";
-    difficultySelect.disabled = false;
-    overlay.hidden = false;
-    setStatus(
-        state.recordAvailable
-            ? "Partita completata: " + accuracy + "% di precisione."
+    pulsanteAvvio.textContent = "Gioca ancora";
+    selettoreDifficolta.disabled = false;
+    pannelloOverlay.hidden = false;
+    mostraStato(
+        statoGioco.recordDisponibile
+            ? "Partita completata: " + precisione + "% di precisione."
             : "Partita completata, ma il browser non consente di salvare il record.",
-        state.recordAvailable ? "active" : ""
+        statoGioco.recordDisponibile ? "active" : ""
     );
-    updateHud();
-    draw();
+    aggiornaPannello();
+    disegna();
 }
 
-function launchDuck() {
-    state.phase = "playing";
-    createDuck();
-    overlay.hidden = true;
-    pauseButton.disabled = false;
-    pauseButton.textContent = "Pausa";
-    setStatus("Round " + state.round + ": prendi la mira!", "active");
-    state.lastTime = performance.now();
+function lanciaAnatra() {
+    statoGioco.fase = "inCorso";
+    creaAnatra();
+    pannelloOverlay.hidden = true;
+    pannelloOverlay.classList.remove("is-round-intro");
+    pulsanteAvvio.hidden = false;
+    pulsantePausa.disabled = false;
+    pulsantePausa.textContent = "Pausa";
+    mostraStato(
+        "Turno " + statoGioco.turno + " · bersaglio " + (statoGioco.bersagliTurno + 1) +
+        "/" + BERSAGLI_PER_TURNO + ": prendi la mira!",
+        "active"
+    );
+    statoGioco.ultimoTempo = performance.now();
 }
 
-function startGame() {
-    if (!state.sceneLoaded) return;
-    difficultySelect.disabled = true;
-    state.roundToken += 1;
-    state.round = 1;
-    state.ducksHit = 0;
-    state.totalDucksHit = 0;
-    state.ducksEscaped = 0;
-    state.shotsFired = 0;
-    state.score = 0;
-    state.shots = AMMO_PER_DUCK;
-    state.duck = null;
-    state.fallingDuck = null;
-    state.shotFeedback = null;
-    overlay.hidden = true;
-    updateHud();
-    launchDuck();
+function avviaPartita() {
+    if (!statoGioco.graficaCaricata) return;
+    selettoreDifficolta.disabled = true;
+    statoGioco.gettonePartita += 1;
+    statoGioco.turno = 1;
+    statoGioco.bersagliTurno = 0;
+    statoGioco.anatreColpite = 0;
+    statoGioco.anatreMancate = 0;
+    statoGioco.colpiSparati = 0;
+    statoGioco.punteggio = 0;
+    statoGioco.colpi = COLPI_PER_ANATRA;
+    statoGioco.anatra = null;
+    statoGioco.anatraInCaduta = null;
+    statoGioco.esitoColpo = null;
+    aggiornaPannello();
+    void mostraIntroTurno(statoGioco.gettonePartita);
 }
 
-function pauseGame() {
-    if (state.phase === "playing") {
-        state.phase = "paused";
-        state.aim.visible = false;
-        pauseButton.textContent = "Riprendi";
-        overlayKicker.textContent = "Round " + state.round;
-        overlayTitle.textContent = "In pausa";
-        overlayText.textContent = "La partita è ferma. Quando vuoi, torna a caccia.";
-        startButton.textContent = "Riprendi";
-        overlay.hidden = false;
-        setStatus("Partita in pausa.", "");
-    } else if (state.phase === "paused") {
-        state.phase = "playing";
-        state.lastTime = performance.now();
-        pauseButton.textContent = "Pausa";
-        overlay.hidden = true;
-        setStatus("La caccia continua!", "active");
+function mettiInPausa() {
+    if (statoGioco.fase === "inCorso") {
+        statoGioco.fase = "inPausa";
+        statoGioco.mira.visibile = false;
+        pulsantePausa.textContent = "Riprendi";
+        sottotitoloOverlay.textContent = "Turno " + statoGioco.turno;
+        titoloOverlay.textContent = "In pausa";
+        testoOverlay.textContent = "La partita è ferma. Quando vuoi, torna a caccia.";
+        pulsanteAvvio.textContent = "Riprendi";
+        pannelloOverlay.hidden = false;
+        mostraStato("Partita in pausa.", "");
+    } else if (statoGioco.fase === "inPausa") {
+        statoGioco.fase = "inCorso";
+        statoGioco.ultimoTempo = performance.now();
+        pulsantePausa.textContent = "Pausa";
+        pannelloOverlay.hidden = true;
+        mostraStato("La caccia continua!", "active");
     }
 }
 
-function updateDuck(deltaTime) {
-    const duck = state.duck;
-    if (!duck) return;
+function aggiornaAnatra(intervallo) {
+    // Ogni anatra riceve una fase casuale; dal quarto turno cambia anche il tipo di traiettoria.
+    const anatra = statoGioco.anatra;
+    if (!anatra) return;
 
-    duck.x += duck.vx * deltaTime;
-    duck.pathTime += deltaTime;
-    if (duck.pathAmplitude) {
-        const pathProgress = duck.pathTime * duck.pathFrequency + duck.pathPhase;
-        let pathOffset = Math.sin(pathProgress);
-        if (duck.pathType === "weave") {
-            pathOffset = (pathOffset + Math.sin(pathProgress * 2.2) * .3) / 1.3;
-        } else if (duck.pathType === "swoop") {
-            pathOffset *= .55 + .45 * (.5 + .5 * Math.sin(duck.pathTime * .6));
+    anatra.x += anatra.velocitaX * intervallo;
+    anatra.tempoTraiettoria += intervallo;
+    if (anatra.ampiezzaTraiettoria) {
+        const avanzamentoTraiettoria = anatra.tempoTraiettoria * anatra.frequenzaTraiettoria + anatra.faseTraiettoria;
+        let scostamentoTraiettoria = Math.sin(avanzamentoTraiettoria);
+        if (anatra.tipoTraiettoria === "zigzag") {
+            scostamentoTraiettoria = (scostamentoTraiettoria + Math.sin(avanzamentoTraiettoria * 2.2) * .3) / 1.3;
+        } else if (anatra.tipoTraiettoria === "tuffo") {
+            scostamentoTraiettoria *= .55 + .45 * (.5 + .5 * Math.sin(anatra.tempoTraiettoria * .6));
         }
-        duck.y = duck.baseY + pathOffset * duck.pathAmplitude;
-        duck.vy = Math.cos(pathProgress) * duck.pathFrequency * duck.pathAmplitude;
+        anatra.y = anatra.quotaBase + scostamentoTraiettoria * anatra.ampiezzaTraiettoria;
+        anatra.velocitaY = Math.cos(avanzamentoTraiettoria) * anatra.frequenzaTraiettoria * anatra.ampiezzaTraiettoria;
     } else {
-        duck.y += duck.vy * deltaTime;
-        if ((duck.y < HEIGHT * .12 && duck.vy < 0) || (duck.y > HEIGHT * .64 && duck.vy > 0)) {
-            duck.vy *= -1;
+        anatra.y += anatra.velocitaY * intervallo;
+        if ((anatra.y < ALTEZZA * .12 && anatra.velocitaY < 0) || (anatra.y > ALTEZZA * .64 && anatra.velocitaY > 0)) {
+            anatra.velocitaY *= -1;
         }
     }
-    duck.timeLeft -= deltaTime;
-    duck.frameTimer += deltaTime;
-    if (duck.frameTimer >= .085) {
-        const framesElapsed = Math.floor(duck.frameTimer / .085);
-        duck.frame = (duck.frame + framesElapsed) % DUCK_FRAME_COUNT;
-        duck.frameTimer %= .085;
+    anatra.tempoResiduo -= intervallo;
+    anatra.timerFotogramma += intervallo;
+    if (anatra.timerFotogramma >= .085) {
+        const fotogrammiTrascorsi = Math.floor(anatra.timerFotogramma / .085);
+        anatra.fotogramma = (anatra.fotogramma + fotogrammiTrascorsi) % NUMERO_FOTOGRAMMI;
+        anatra.timerFotogramma %= .085;
     }
 
-    const duckMargin = 55 * getGameScale();
-    if (duck.timeLeft <= 0 || duck.x < -duckMargin || duck.x > WIDTH + duckMargin) {
-        state.ducksEscaped += 1;
-        void continueGame(state.roundToken, "La papera è scappata. Un nuovo bersaglio sta arrivando…");
+    const margineAnatra = 55 * scalaGioco();
+    if (anatra.tempoResiduo <= 0 || anatra.x < -margineAnatra || anatra.x > LARGHEZZA + margineAnatra) {
+        statoGioco.anatreMancate += 1;
+        void continuaPartita(statoGioco.gettonePartita, "La papera è scappata.");
     }
 }
 
-function shoot() {
-    if (state.phase !== "playing" || state.shots === 0) return;
+function spara() {
+    if (statoGioco.fase !== "inCorso" || statoGioco.colpi === 0) return;
 
-    state.shots -= 1;
-    state.shotsFired += 1;
-    const duck = state.duck;
-    const scale = getGameScale();
-    const hit = duck && Math.abs(state.aim.x - duck.x) < 27 * scale && Math.abs(state.aim.y - duck.y) < 21 * scale;
+    statoGioco.colpi -= 1;
+    statoGioco.colpiSparati += 1;
+    const anatra = statoGioco.anatra;
+    const scala = scalaGioco();
+    const colpita = anatra && Math.abs(statoGioco.mira.x - anatra.x) < 27 * scala && Math.abs(statoGioco.mira.y - anatra.y) < 21 * scala;
 
-    if (hit) {
-        const points = DUCK_HIT_SCORES[AMMO_PER_DUCK - state.shots - 1];
-        state.score += points;
-        state.ducksHit += 1;
-        state.totalDucksHit += 1;
-        state.duck = null;
-        state.shotFeedback = {
-            x: state.aim.x,
-            y: state.aim.y,
-            hit: true,
-            points,
-            elapsed: 0,
+    if (colpita) {
+        const punti = PUNTI_PER_COLPO[COLPI_PER_ANATRA - statoGioco.colpi - 1];
+        statoGioco.punteggio += punti;
+        statoGioco.anatreColpite += 1;
+        statoGioco.anatra = null;
+        statoGioco.esitoColpo = {
+            x: statoGioco.mira.x,
+            y: statoGioco.mira.y,
+            colpita: true,
+            punti,
+            tempoTrascorso: 0,
         };
-        state.fallingDuck = {
-            x: duck.x,
-            startY: duck.y,
-            vx: duck.vx * .08,
-            elapsed: 0,
+        statoGioco.anatraInCaduta = {
+            x: anatra.x,
+            inizioY: anatra.y,
+            velocitaX: anatra.velocitaX * .08,
+            tempoTrascorso: 0,
         };
-        updateHud();
-        const shotNumber = AMMO_PER_DUCK - state.shots;
-        void continueGame(
-            state.roundToken,
-            "Colpita al colpo " + shotNumber + "! +" + points + " punti. Prossimo bersaglio in arrivo…",
+        aggiornaPannello();
+        const shotNumber = COLPI_PER_ANATRA - statoGioco.colpi;
+        void continuaPartita(
+            statoGioco.gettonePartita,
+            "Colpita al colpo " + shotNumber + "! +" + punti + " punti.",
             true
         );
         return;
     }
 
-    state.shotFeedback = {
-        x: state.aim.x,
-        y: state.aim.y,
-        hit: false,
-        points: 0,
-        elapsed: 0,
+    statoGioco.esitoColpo = {
+        x: statoGioco.mira.x,
+        y: statoGioco.mira.y,
+        colpita: false,
+        punti: 0,
+        tempoTrascorso: 0,
     };
-    updateHud();
-    if (state.shots === 0) {
-        state.ducksEscaped += 1;
-        void continueGame(state.roundToken, "Colpi esauriti. Prossimo bersaglio in arrivo…");
+    aggiornaPannello();
+    if (statoGioco.colpi === 0) {
+        statoGioco.anatreMancate += 1;
+        void continuaPartita(statoGioco.gettonePartita, "Colpi esauriti: papera mancata.");
     } else {
-        const remainingShots = state.shots === 1 ? "1 colpo" : state.shots + " colpi";
-        setStatus("Mancato. Restano " + remainingShots + ".", "");
+        const colpiRimasti = statoGioco.colpi === 1 ? "1 colpo" : statoGioco.colpi + " colpi";
+        mostraStato("Mancato. Restano " + colpiRimasti + ".", "");
     }
 }
 
-function getCanvasPoint(event) {
-    const bounds = canvas.getBoundingClientRect();
+function coordinateCanvas(evento) {
+    const limiti = telaGioco.getBoundingClientRect();
     return {
-        x: (event.clientX - bounds.left) * WIDTH / bounds.width,
-        y: (event.clientY - bounds.top) * HEIGHT / bounds.height,
+        x: (evento.clientX - limiti.left) * LARGHEZZA / limiti.width,
+        y: (evento.clientY - limiti.top) * ALTEZZA / limiti.height,
     };
 }
 
-function updateFullscreenButton() {
-    const isFullscreen = Boolean(document.fullscreenElement);
-    fullscreenButton.textContent = isFullscreen ? "Esci da schermo intero" : "Schermo intero";
-    fullscreenButton.setAttribute("aria-label", isFullscreen ? "Esci da schermo intero" : "Attiva schermo intero");
+function aggiornaPulsanteSchermoIntero() {
+    const schermoInteroAttivo = Boolean(document.fullscreenElement);
+    pulsanteSchermoIntero.textContent = schermoInteroAttivo ? "Esci da schermo intero" : "Schermo intero";
+    pulsanteSchermoIntero.setAttribute("aria-label", schermoInteroAttivo ? "Esci da schermo intero" : "Attiva schermo intero");
 }
 
-function frame(now) {
-    const deltaTime = Math.min((now - state.lastTime) / 1000, .05);
-    state.lastTime = now;
-    if (state.phase === "playing") updateDuck(deltaTime);
-    if (state.fallingDuck) state.fallingDuck.elapsed += deltaTime;
-    if (state.shotFeedback) {
-        state.shotFeedback.elapsed += deltaTime;
-        if (state.shotFeedback.elapsed >= .52) state.shotFeedback = null;
+function aggiornaFotogramma(tempoAttuale) {
+    const intervallo = Math.min((tempoAttuale - statoGioco.ultimoTempo) / 1000, .05);
+    statoGioco.ultimoTempo = tempoAttuale;
+    if (statoGioco.fase === "inCorso") aggiornaAnatra(intervallo);
+    if (statoGioco.anatraInCaduta) statoGioco.anatraInCaduta.tempoTrascorso += intervallo;
+    if (statoGioco.esitoColpo) {
+        statoGioco.esitoColpo.tempoTrascorso += intervallo;
+        if (statoGioco.esitoColpo.tempoTrascorso >= .52) statoGioco.esitoColpo = null;
     }
-    draw();
-    requestAnimationFrame(frame);
+    disegna();
+    requestAnimationFrame(aggiornaFotogramma);
 }
 
-startButton.addEventListener("click", () => {
-    if (state.phase === "paused") {
-        pauseGame();
+pulsanteAvvio.addEventListener("click", () => {
+    if (statoGioco.fase === "inPausa") {
+        mettiInPausa();
     } else {
-        startGame();
+        avviaPartita();
     }
 });
 
-startButton.addEventListener("mouseover", () => {
-    if (state.phase === "ready") setStatus("Premi il pulsante: le papere non aspettano.", "");
+pulsanteAvvio.addEventListener("mouseover", () => {
+    if (statoGioco.fase === "pronta") mostraStato("Premi il pulsante: le papere non aspettano.", "");
 });
 
-pauseButton.addEventListener("click", pauseGame);
+pulsantePausa.addEventListener("click", mettiInPausa);
 
-fullscreenButton.addEventListener("click", async () => {
+pulsanteSchermoIntero.addEventListener("click", async () => {
     try {
         if (document.fullscreenElement) {
             await document.exitFullscreen();
         } else {
-            await gameShell.requestFullscreen();
+            await contenitoreGioco.requestFullscreen();
         }
-        updateFullscreenButton();
-    } catch (error) {
-        setStatus("Impossibile attivare lo schermo intero: " + error.message, "");
+        aggiornaPulsanteSchermoIntero();
+    } catch (errore) {
+        mostraStato("Impossibile attivare lo schermo intero: " + errore.message, "");
     }
 });
 
 document.addEventListener("fullscreenchange", () => {
-    updateFullscreenButton();
-    window.requestAnimationFrame(fitCanvas);
+    aggiornaPulsanteSchermoIntero();
+    window.requestAnimationFrame(adattaCanvas);
 });
 
-difficultySelect.addEventListener("change", () => {
-    difficultyReadout.textContent = DIFFICULTIES[difficultySelect.value].label;
-    if (state.phase === "ready") {
-        setStatus("Difficoltà impostata su " + DIFFICULTIES[difficultySelect.value].label.toLowerCase() + ".", "");
+selettoreDifficolta.addEventListener("change", () => {
+    testoDifficolta.textContent = LIVELLI_DIFFICOLTA[selettoreDifficolta.value].etichetta;
+    if (statoGioco.fase === "pronta") {
+        mostraStato("Difficoltà impostata su " + LIVELLI_DIFFICOLTA[selettoreDifficolta.value].etichetta.toLowerCase() + ".", "");
     }
 });
 
-canvas.addEventListener("pointermove", (event) => {
-    const point = getCanvasPoint(event);
-    state.aim = { ...point, visible: true };
-    if (event.pointerType === "touch" && state.touchGesture) {
-        const deltaX = point.x - state.touchGesture.startX;
-        const deltaY = point.y - state.touchGesture.startY;
-        if (deltaX * deltaX + deltaY * deltaY > 144) {
-            state.touchGesture.moved = true;
+telaGioco.addEventListener("pointermove", (evento) => {
+    const punto = coordinateCanvas(evento);
+    statoGioco.mira = { ...punto, visibile: true };
+    if (evento.pointerType === "touch" && statoGioco.gestoTouch) {
+        const scartoX = punto.x - statoGioco.gestoTouch.inizioX;
+        const scartoY = punto.y - statoGioco.gestoTouch.inizioY;
+        if (scartoX * scartoX + scartoY * scartoY > 144) {
+            statoGioco.gestoTouch.spostato = true;
         }
     }
 });
 
-canvas.addEventListener("pointerleave", () => {
-    state.aim.visible = false;
+telaGioco.addEventListener("pointerleave", () => {
+    statoGioco.mira.visibile = false;
 });
 
-canvas.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0) return;
-    if (event.pointerType === "touch") {
-        event.preventDefault();
-        canvas.setPointerCapture(event.pointerId);
-        const point = getCanvasPoint(event);
-        state.aim = { ...point, visible: true };
-        state.touchGesture = { startX: point.x, startY: point.y, moved: false };
+telaGioco.addEventListener("pointerdown", (evento) => {
+    if (evento.button !== 0) return;
+    if (evento.pointerType === "touch") {
+        evento.preventDefault();
+        telaGioco.setPointerCapture(evento.pointerId);
+        const punto = coordinateCanvas(evento);
+        statoGioco.mira = { ...punto, visibile: true };
+        statoGioco.gestoTouch = { inizioX: punto.x, inizioY: punto.y, spostato: false };
         return;
     }
-    state.aim = { ...getCanvasPoint(event), visible: true };
-    shoot();
+    statoGioco.mira = { ...coordinateCanvas(evento), visibile: true };
+    spara();
 });
 
-canvas.addEventListener("pointerup", (event) => {
-    if (event.pointerType !== "touch") return;
-    const gesture = state.touchGesture;
-    state.touchGesture = null;
-    if (gesture && !gesture.moved) {
-        state.aim = { ...getCanvasPoint(event), visible: true };
-        shoot();
+telaGioco.addEventListener("pointerup", (evento) => {
+    if (evento.pointerType !== "touch") return;
+    const gesto = statoGioco.gestoTouch;
+    statoGioco.gestoTouch = null;
+    if (gesto && !gesto.spostato) {
+        statoGioco.mira = { ...coordinateCanvas(evento), visibile: true };
+        spara();
     }
-    state.aim.visible = false;
+    statoGioco.mira.visibile = false;
 });
 
-canvas.addEventListener("pointercancel", (event) => {
-    if (event.pointerType !== "touch") return;
-    state.touchGesture = null;
-    state.aim.visible = false;
+telaGioco.addEventListener("pointercancel", (evento) => {
+    if (evento.pointerType !== "touch") return;
+    statoGioco.gestoTouch = null;
+    statoGioco.mira.visibile = false;
 });
 
-window.addEventListener("keydown", (event) => {
-    if (event.code === "Space") {
-        event.preventDefault();
-        shoot();
-    } else if (event.code === "KeyP" && !event.repeat) {
-        pauseGame();
-    } else if (event.code === "Enter" && state.phase === "ready") {
-        startGame();
+window.addEventListener("keydown", (evento) => {
+    if (evento.code === "Space") {
+        evento.preventDefault();
+        spara();
+    } else if (evento.code === "KeyP" && !evento.repeat) {
+        mettiInPausa();
+    } else if (evento.code === "Enter" && statoGioco.fase === "pronta") {
+        avviaPartita();
     }
 });
 
-window.addEventListener("resize", fitCanvas);
+window.addEventListener("resize", adattaCanvas);
 
-fitCanvas();
+adattaCanvas();
 try {
-    const storedBestScore = Number.parseInt(window.localStorage.getItem(BEST_SCORE_KEY), 10);
-    state.bestScore = Number.isSafeInteger(storedBestScore) && storedBestScore >= 0
-        ? storedBestScore
+    const recordSalvato = Number.parseInt(window.localStorage.getItem(CHIAVE_RECORD), 10);
+    statoGioco.recordPersonale = Number.isSafeInteger(recordSalvato) && recordSalvato >= 0
+        ? recordSalvato
         : 0;
-} catch (error) {
-    state.recordAvailable = false;
+} catch (errore) {
+    statoGioco.recordDisponibile = false;
 }
-difficultyReadout.textContent = DIFFICULTIES[difficultySelect.value].label;
-updateHud();
-draw();
-requestAnimationFrame(frame);
+testoDifficolta.textContent = LIVELLI_DIFFICOLTA[selettoreDifficolta.value].etichetta;
+aggiornaPannello();
+disegna();
+requestAnimationFrame(aggiornaFotogramma);
 
-function loadImage(image, path) {
-    return new Promise((resolve, reject) => {
-        image.addEventListener("load", resolve, { once: true });
-        image.addEventListener("error", () => reject(new Error("Impossibile caricare " + path)), { once: true });
-        image.src = path;
+function caricaImmagine(immagine, percorso) {
+    return new Promise((completa, rifiuta) => {
+        immagine.addEventListener("load", completa, { once: true });
+        immagine.addEventListener("error", () => rifiuta(new Error("Impossibile caricare " + percorso)), { once: true });
+        immagine.src = percorso;
     });
 }
 
 Promise.all([
-    loadImage(sceneBackground, "./img/sfondo.png"),
-    loadImage(duckSpriteSheet, "./img/frame-anatra.png"),
-    loadImage(duckDeathSpriteSheet, "./img/anatra morta frame.png"),
-    loadImage(crosshairImage, "./img/mirino.png"),
-    loadImage(dogSpriteSheet, "./img/frame-cane.png"),
+    ...SFONDI_TURNI.map((scenario) => caricaImmagine(scenario.immagine, scenario.percorso)),
+    caricaImmagine(spriteAnatre, "./img/frame-anatra.png"),
+    caricaImmagine(spriteCaduta, "./img/anatra morta frame.png"),
+    caricaImmagine(immagineMirino, "./img/mirino.png"),
+    caricaImmagine(spriteCane, "./img/frame-cane.png"),
 ]).then(() => {
-    state.sceneLoaded = true;
-    startButton.disabled = false;
-    startButton.textContent = "Inizia a giocare";
-    setStatus("Pronto: le papere ora volano veloci. Scegli la difficoltà e inizia.", "");
-    draw();
-}).catch((error) => {
-    overlayKicker.textContent = "Errore di caricamento";
-    overlayTitle.textContent = "Grafica non disponibile";
-    overlayText.textContent = error.message + ". Controlla che i file grafici siano nella cartella img.";
-    startButton.disabled = true;
-    startButton.textContent = "Gioco non disponibile";
-    setStatus("Errore nel caricamento della grafica: " + error.message, "");
+    statoGioco.graficaCaricata = true;
+    pulsanteAvvio.disabled = false;
+    pulsanteAvvio.textContent = "Inizia a giocare";
+    mostraStato("Pronto: le papere ora volano veloci. Scegli la difficoltà e inizia.", "");
+    disegna();
+}).catch((errore) => {
+    sottotitoloOverlay.textContent = "Errore di caricamento";
+    titoloOverlay.textContent = "Grafica non disponibile";
+    testoOverlay.textContent = errore.message + ". Controlla che i file grafici siano nella cartella img.";
+    pulsanteAvvio.disabled = true;
+    pulsanteAvvio.textContent = "Gioco non disponibile";
+    mostraStato("Errore nel caricamento della grafica: " + errore.message, "");
 });

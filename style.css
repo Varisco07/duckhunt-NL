@@ -185,6 +185,49 @@ h1 span { color: var(--yellow); }
 
 .game-overlay[hidden] { display: none; }
 
+.game-overlay.is-round-intro {
+    gap: 8px;
+    background: rgba(9, 12, 25, .32);
+    backdrop-filter: blur(2px);
+}
+
+.game-overlay.is-round-intro::before {
+    position: absolute;
+    width: min(72vw, 640px);
+    height: min(52vh, 280px);
+    border: 2px solid rgba(246, 207, 88, .72);
+    background: linear-gradient(135deg, rgba(17, 19, 31, .9), rgba(17, 19, 31, .68));
+    box-shadow: 0 0 0 6px rgba(17, 19, 31, .42), 0 12px 42px rgba(0, 0, 0, .45);
+    content: "";
+    image-rendering: pixelated;
+    clip-path: polygon(0 12px, 12px 12px, 12px 0, calc(100% - 12px) 0, calc(100% - 12px) 12px, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 12px calc(100% - 12px), 0 calc(100% - 12px));
+}
+
+.game-overlay.is-round-intro > * { position: relative; }
+
+.game-overlay.is-round-intro .overlay-kicker {
+    margin-bottom: 3px;
+    color: #fff0b2;
+    font-size: clamp(10px, 1.5vw, 14px);
+    letter-spacing: .24em;
+}
+
+.game-overlay.is-round-intro h2 {
+    color: var(--yellow);
+    font-size: clamp(56px, 12vw, 112px);
+    letter-spacing: .09em;
+    text-shadow: 4px 4px 0 #714125, 7px 7px 0 rgba(0, 0, 0, .7);
+    -webkit-text-stroke: 1px #fff0b2;
+}
+
+.game-overlay.is-round-intro > p:not(.overlay-kicker) {
+    margin: 6px 0 0;
+    color: white;
+    font: 700 clamp(9px, 1.3vw, 12px)/1.4 Consolas, "Courier New", monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
 .overlay-kicker {
     margin: 0 0 10px;
     color: var(--yellow);

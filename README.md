@@ -21,8 +21,8 @@ Su dispositivi touch, trascinare serve a spostare la mira; rilasciare non spara.
 
 - Ogni anatra può essere colpita con un massimo di tre colpi.
 - Un colpo a segno vale **100 punti** al primo tentativo, **60** al secondo e **30** al terzo.
-- Se finiscono i colpi o l'anatra scappa, il bersaglio è mancato e arriva un'altra anatra.
-- Abbatti **10 anatre per round** per avanzare. La partita si completa dopo **5 round**.
+- Se finiscono i tre colpi o l'anatra scappa, quel bersaglio è mancato e si passa subito al successivo.
+- Ogni round comprende **10 bersagli**, indipendentemente da quanti ne colpisci; la partita si completa dopo **5 round**. Ogni round ha uno scenario diverso e una schermata arcade annuncia il round successivo.
 - Quando viene colpita, l'anatra mostra un'animazione di caduta prima del bersaglio successivo.
 - A fine partita trovi punteggio, anatre abbattute e mancate, colpi sparati e precisione. Il record personale viene conservato nel browser sul dispositivo in uso.
 
@@ -44,6 +44,7 @@ I valori di velocità sono riferimenti interni al gioco. Nei round successivi le
 - `style.css` — grafica, layout e adattamento a schermi piccoli.
 - `script.js` — movimento delle anatre, round, punteggio e comandi.
 - `img/sfondo.png` — scenario di gioco.
+- `img/sfondo primavera.png`, `img/sfondo autunno.png`, `img/sfondo inverno.png` e `img/sfondo galassia.png` — scenari dei round successivi.
 - `img/frame-anatra.png` — sprite sheet delle anatre in volo.
 - `img/anatra morta frame.png` — frame dell'animazione di caduta.
 - `img/frame-cane.png` — posa del cane nella schermata iniziale.
