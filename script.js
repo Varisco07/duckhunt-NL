@@ -133,7 +133,7 @@ function drawDuck(duck) {
     const frameBottom = DUCK_SPRITE_BOTTOMS[row][duck.frame];
     const sourceWidth = frameWidth + 4;
     const sourceHeight = frameBottom - frameTop + 5;
-    const spriteScale = Math.min(108 / sourceWidth, 88 / sourceHeight);
+    const spriteScale = Math.min(82 / sourceWidth, 68 / sourceHeight);
     const drawWidth = sourceWidth * spriteScale;
     const drawHeight = sourceHeight * spriteScale;
     ctx.save();
@@ -231,6 +231,7 @@ function finishGame() {
     overlayTitle.textContent = "Bella mira!";
     overlayText.textContent = "Hai totalizzato " + state.score + " punti. Vuoi fare un'altra partita?";
     startButton.textContent = "Gioca ancora";
+    difficultySelect.disabled = false;
     overlay.hidden = false;
     setStatus("Hai completato tutti e cinque i round.", "active");
     updateHud();
@@ -249,6 +250,7 @@ function launchDuck() {
 
 function startGame() {
     if (!state.sceneLoaded) return;
+    difficultySelect.disabled = true;
     state.roundToken += 1;
     state.round = 1;
     state.ducksHit = 0;
@@ -307,7 +309,7 @@ function shoot() {
     state.shots -= 1;
     const duck = state.duck;
     const scale = getGameScale();
-    const hit = duck && Math.abs(state.aim.x - duck.x) < 35 * scale && Math.abs(state.aim.y - duck.y) < 27 * scale;
+    const hit = duck && Math.abs(state.aim.x - duck.x) < 27 * scale && Math.abs(state.aim.y - duck.y) < 21 * scale;
 
     if (hit) {
         state.score += 100;
