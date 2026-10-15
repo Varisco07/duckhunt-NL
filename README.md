@@ -12,8 +12,6 @@ Apri `index.html` con un browser moderno. Non servono installazione, compilazion
 | --- | --- | --- |
 | Mirare | Muovi il puntatore | Trascina sul campo |
 | Sparare | Clic oppure **Spazio** | Tocca il campo |
-| Pausa / ripresa | **P** oppure pulsante **Pausa** | Pulsante **Pausa** |
-| Schermo intero | Pulsante **Schermo intero** | Pulsante **Schermo intero** |
 
 Su dispositivi touch, trascinare serve a spostare la mira; rilasciare non spara. Tocca per fare fuoco.
 
