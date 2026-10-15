@@ -276,14 +276,6 @@ h1 span { color: var(--yellow); }
 
 .button-primary { background: var(--yellow); color: var(--night); }
 .button-primary:hover { background: #ffe28a; }
-.button-quiet {
-    min-height: 32px;
-    border-color: rgba(255, 255, 255, .4);
-    background: var(--cabinet);
-    color: var(--paper);
-    backdrop-filter: blur(8px);
-}
-.button-quiet:hover:not(:disabled) { border-color: var(--yellow); color: var(--yellow); }
 .button:disabled { cursor: not-allowed; opacity: .46; }
 
 .game-status {
@@ -339,21 +331,11 @@ h1 span { color: var(--yellow); }
     right: max(18px, env(safe-area-inset-right));
     bottom: max(12px, env(safe-area-inset-bottom));
     left: max(18px, env(safe-area-inset-left));
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    display: flex;
     align-items: center;
-    gap: 8px 16px;
 }
 
 .difficulty-control { display: flex; align-items: center; gap: 8px; }
-.game-actions { display: flex; align-items: center; gap: 8px; }
-.credits {
-    margin: 0;
-    color: white;
-    font-size: 9px;
-    text-align: right;
-    text-shadow: 0 1px 4px #000;
-}
 
 .difficulty-control label {
     color: white;
@@ -373,25 +355,6 @@ select {
 }
 
 select:disabled { cursor: not-allowed; opacity: .58; }
-
-.hint {
-    margin: 0 auto;
-    color: white;
-    font-size: 9px;
-    text-shadow: 0 1px 4px #000;
-}
-
-kbd {
-    padding: 2px 4px;
-    border: 1px solid rgba(255, 255, 255, .35);
-    border-bottom-width: 2px;
-    border-radius: 2px;
-    background: var(--cabinet);
-    color: white;
-    font: 700 9px/1.2 Consolas, monospace;
-}
-
-.touch-hint { display: none; }
 
 @media (max-width: 600px) {
     .topbar { top: max(9px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); }
@@ -430,39 +393,15 @@ kbd {
         right: max(10px, env(safe-area-inset-right));
         bottom: max(10px, env(safe-area-inset-bottom));
         left: max(10px, env(safe-area-inset-left));
-        grid-template-columns: auto minmax(0, 1fr);
-        grid-template-areas:
-            "difficulty actions"
-            "credits credits";
-        gap: 2px 7px;
     }
-    .difficulty-control { grid-area: difficulty; }
-    .game-actions { grid-area: actions; justify-content: flex-end; gap: 5px; }
-    .credits { grid-area: credits; font-size: 8px; text-align: center; }
     .difficulty-control { gap: 5px; }
     .difficulty-control label { font-size: 9px; }
     select { min-height: 28px; max-width: 90px; padding-left: 6px; font-size: 9px; }
-    .hint {
-        position: absolute;
-        bottom: max(91px, calc(env(safe-area-inset-bottom) + 87px));
-        left: 50%;
-        display: block;
-        width: max-content;
-        max-width: calc(100vw - 20px);
-        transform: translateX(-50%);
-        font-size: 8px;
-        text-align: center;
-    }
-    .desktop-hint { display: none; }
-    .touch-hint { display: inline; }
-    .button-quiet { min-height: 29px; padding: 0 10px; font-size: 9px; }
 }
 
 @media (max-width: 360px) {
-    .controls { column-gap: 5px; }
     .difficulty-control label { display: none; }
     select { max-width: 82px; }
-    .button-quiet { padding: 0 7px; font-size: 8px; }
 }
 
 @media (max-height: 420px) {
@@ -472,11 +411,6 @@ kbd {
     .scoreboard { min-height: 42px; }
     .game-status { bottom: 52px; }
     .controls { bottom: 6px; }
-}
-
-@media (hover: none) and (pointer: coarse) {
-    .desktop-hint { display: none; }
-    .touch-hint { display: inline; }
 }
 
 @media (prefers-reduced-motion: reduce) {
