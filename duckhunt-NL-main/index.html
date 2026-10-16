@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#11131f">
+    <meta name="description" content="Caccia alle papere in stile arcade: prendi la mira, spara e affronta round sempre più veloci.">
+    <title>Duck Hunt — Caccia alla papera</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <main class="game-shell">
+        <header class="topbar">
+            <p class="edition">&copy; Varisco Nicolo' - Androni Lorenzo</p>
+        </header>
+
+        <section class="intro" aria-labelledby="page-title">
+            <div>
+                <p class="eyebrow">Stagione di caccia</p>
+                <h1 id="page-title">Duck <span>Hunt</span> NL</h1>
+            </div>
+            <p class="intro-copy">Le vedi, le prendi di mira, fai fuoco. Hai tre colpi per ogni papera: non lasciartele scappare.</p>
+        </section>
+
+        <section class="scoreboard" aria-label="Punteggio della partita">
+            <div class="score-card"><span>Round</span><strong id="roundDisplay">—</strong></div>
+            <div class="score-card"><span>Bersagli</span><strong id="hitDisplay">0 / 10</strong></div>
+            <div class="score-card"><span>Punteggio</span><strong id="scoreDisplay">00000</strong></div>
+            <div class="score-card"><span>Record</span><strong id="bestScoreDisplay">00000</strong></div>
+            <div class="score-card ammo-card"><span>Colpi</span><div id="ammoDisplay" role="img" aria-label="3 colpi rimasti"></div></div>
+        </section>
+
+        <section class="play-area" aria-label="Campo di caccia">
+            <div class="canvas-wrap">
+                <canvas id="gameCanvas" width="800" height="480" aria-label="Campo di gioco. Punta e fai clic o tocca per sparare."></canvas>
+                <div class="game-overlay" id="gameOverlay">
+                    <p class="overlay-kicker" id="overlayKicker">Una partita, cinque round</p>
+                    <h2 id="overlayTitle">Pronta la mira?</h2>
+                    <p id="overlayText">Hai tre colpi per papera. Più sei preciso, più punti guadagni: 100 al primo colpo, 60 al secondo, 30 al terzo.</p>
+                    <button class="button button-primary" id="startButton" type="button" disabled>Caricamento…</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="game-status" role="status" aria-live="polite">
+            <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+            <p id="statusText">Caricamento dello scenario…</p>
+        </div>
+    </main>
+</body>
+</html>
