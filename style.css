@@ -269,7 +269,7 @@ h1 span { color: var(--yellow); }
     transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
 }
 
-.button:focus-visible, select:focus-visible, .back-link:focus-visible {
+.button:focus-visible, .back-link:focus-visible {
     outline: 2px solid var(--yellow);
     outline-offset: 3px;
 }
@@ -318,43 +318,6 @@ h1 span { color: var(--yellow); }
     white-space: nowrap;
 }
 
-.difficulty-readout {
-    color: #ddd6c6;
-    font: 700 8px/1.4 Consolas, monospace;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-}
-
-.controls {
-    position: absolute;
-    z-index: 2;
-    right: max(18px, env(safe-area-inset-right));
-    bottom: max(12px, env(safe-area-inset-bottom));
-    left: max(18px, env(safe-area-inset-left));
-    display: flex;
-    align-items: center;
-}
-
-.difficulty-control { display: flex; align-items: center; gap: 8px; }
-
-.difficulty-control label {
-    color: white;
-    font-size: 10px;
-    text-shadow: 0 1px 4px #000;
-}
-
-select {
-    min-height: 30px;
-    padding: 0 25px 0 8px;
-    border: 1px solid rgba(255, 255, 255, .4);
-    border-radius: 3px;
-    background: var(--cabinet);
-    color: var(--paper);
-    font-size: 10px;
-    backdrop-filter: blur(8px);
-}
-
-select:disabled { cursor: not-allowed; opacity: .58; }
 
 @media (max-width: 600px) {
     .topbar { top: max(9px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); }
@@ -388,21 +351,8 @@ select:disabled { cursor: not-allowed; opacity: .58; }
         padding: 0 8px;
     }
     .game-status p { font-size: 9px; }
-    .difficulty-readout { display: none; }
-    .controls {
-        right: max(10px, env(safe-area-inset-right));
-        bottom: max(10px, env(safe-area-inset-bottom));
-        left: max(10px, env(safe-area-inset-left));
-    }
-    .difficulty-control { gap: 5px; }
-    .difficulty-control label { font-size: 9px; }
-    select { min-height: 28px; max-width: 90px; padding-left: 6px; font-size: 9px; }
 }
 
-@media (max-width: 360px) {
-    .difficulty-control label { display: none; }
-    select { max-width: 82px; }
-}
 
 @media (max-height: 420px) {
     .intro { top: 36px; }
@@ -410,7 +360,6 @@ select:disabled { cursor: not-allowed; opacity: .58; }
     .eyebrow { display: none; }
     .scoreboard { min-height: 42px; }
     .game-status { bottom: 52px; }
-    .controls { bottom: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
