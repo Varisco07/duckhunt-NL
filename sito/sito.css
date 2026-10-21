@@ -91,7 +91,7 @@ h1 {
 .facts strong { color: var(--grass); font: 400 28px/1 var(--display); margin-right: 4px; }
 
 .hero-art { margin: 0; }
-.hero-art img {
+.hero-art video {
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
@@ -146,7 +146,7 @@ tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
     padding: 0;
     list-style: none;
 }
-.scenes img {
+.scenes video {
     width: 100%;
     aspect-ratio: 16 / 10;
     object-fit: cover;

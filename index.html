@@ -33,6 +33,8 @@
 
         <section class="play-area" aria-label="Campo di caccia">
             <div class="canvas-wrap">
+                <video class="game-background" id="gameBackground" autoplay muted loop playsinline aria-hidden="true"></video>
+                <img class="duck-sprite" id="duckSprite" alt="" aria-hidden="true" hidden>
                 <canvas id="gameCanvas" width="800" height="480" aria-label="Campo di gioco. Punta e fai clic o tocca per sparare."></canvas>
                 <div class="game-overlay" id="gameOverlay">
                     <p class="overlay-kicker" id="overlayKicker">Una partita, cinque round</p>
@@ -43,10 +45,7 @@
             </div>
         </section>
 
-        <div class="game-status" role="status" aria-live="polite">
-            <span class="status-dot" id="statusDot" aria-hidden="true"></span>
-            <p id="statusText">Caricamento dello scenario…</p>
-        </div>
+        <p class="visually-hidden" id="statusText" role="status" aria-live="polite">Caricamento dello scenario…</p>
     </main>
 </body>
 </html>

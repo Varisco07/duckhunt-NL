@@ -1,6 +1,9 @@
 const $ = (selettore) => document.querySelector(selettore);
 const telaGioco = $("#gameCanvas");
 const contesto = telaGioco.getContext("2d");
+const campoGioco = $(".canvas-wrap");
+const videoSfondo = $("#gameBackground");
+const immagineAnatra = $("#duckSprite");
 const pannelloOverlay = $("#gameOverlay");
 const sottotitoloOverlay = $("#overlayKicker");
 const titoloOverlay = $("#overlayTitle");
@@ -12,13 +15,16 @@ const testoPunteggio = $("#scoreDisplay");
 const testoRecord = $("#bestScoreDisplay");
 const testoColpi = $("#ammoDisplay");
 const testoStato = $("#statusText");
-const puntoStato = $("#statusDot");
 
-let sfondi, spriteAnatre, spriteCaduta, immagineMirino, immagineMirinoBianco, spriteCane;
+let animazioniAnatra, animazioniCaduta, immagineMirino, immagineMirinoBianco, spriteCane;
 const SFONDI_TURNI = [
-    ["sfondo", "Prato classico"], ["sfondo primavera", "Primavera"], ["sfondo autunno", "Autunno"],
-    ["sfondo inverno", "Inverno"], ["sfondo galassia", "Galassia"],
+    ["sfondo_classico_50fps.mp4", "Prato classico"], ["sfondo_primavera_50fps.mp4", "Primavera"], ["sfondo_autunno_50fps.mp4", "Autunno"],
+    ["sfondo_inverno_50fps.mp4", "Inverno"], ["sfondo_notte_50fps.mp4", "Galassia"],
 ];
+const GIF_ANATRE = {
+    destra: "anatra_destra.gif",
+    sinistra: "anatra_sinistra.gif",
+};
 
 let LARGHEZZA = 800;
 let ALTEZZA = 480;
@@ -26,40 +32,8 @@ const BERSAGLI_PER_TURNO = 10;
 const NUMERO_TURNI = 5;
 const COLPI_PER_ANATRA = 3;
 const PUNTI_PER_COLPO = [100, 60, 30];
-const NUMERO_FOTOGRAMMI = 9;
 const DURATA_CADUTA = 1.05;
 const CHIAVE_RECORD = "duck-hunt-best-score";
-const FOTOGRAMMI_CADUTA = [
-    [36, 120, 231, 205], [284, 125, 224, 210], [534, 124, 224, 212], [788, 120, 215, 211],
-    [36, 448, 197, 193], [292, 451, 204, 202], [548, 461, 198, 208], [800, 479, 180, 197],
-    [45, 775, 159, 237], [293, 783, 171, 221], [548, 816, 177, 215], [816, 829, 177, 194],
-    [52, 1151, 189, 213], [286, 1191, 222, 181], [533, 1191, 222, 174], [786, 1226, 233, 149],
-];
-const TEMPO_FOTOGRAMMA_CADUTA = DURATA_CADUTA / FOTOGRAMMI_CADUTA.length;
-const COLONNE_SPRITE_ANATRE = [
-    [[128, 98], [250, 98], [367, 94], [482, 92], [594, 94], [707, 94], [821, 95], [934, 91], [1047, 96]],
-    [[128, 94], [245, 93], [362, 88], [470, 94], [587, 93], [701, 89], [815, 92], [931, 97], [1045, 92]],
-    [[135, 85], [255, 92], [366, 94], [487, 88], [594, 92], [706, 90], [829, 87], [944, 84], [1048, 94]],
-    [[128, 90], [237, 91], [356, 89], [472, 92], [588, 96], [698, 88], [814, 87], [929, 96], [1044, 94]],
-    [[136, 91], [249, 93], [366, 93], [485, 85], [588, 94], [708, 90], [822, 90], [933, 92], [1050, 88]],
-    [[130, 90], [245, 90], [361, 88], [479, 90], [596, 87], [707, 87], [822, 87], [935, 84], [1045, 87]],
-];
-const BORDI_SUPERIORI_ANATRE = [
-    [43, 23, 35, 16, 43, 43, 18, 16, 43],
-    [37, 15, 11, 28, 36, 12, 14, 37, 37],
-    [20, 9, 20, 9, 19, 18, 11, 15, 20],
-    [19, 21, 22, 18, 23, 17, 17, 23, 23],
-    [32, 8, 23, 24, 29, 29, 8, 9, 28],
-    [21, 6, 18, 13, 23, 6, 5, 12, 20],
-];
-const BORDI_INFERIORI_ANATRE = [
-    [95, 85, 84, 86, 91, 94, 86, 86, 95],
-    [88, 79, 79, 78, 85, 78, 79, 87, 88],
-    [92, 84, 82, 80, 88, 91, 80, 79, 90],
-    [93, 82, 85, 84, 88, 85, 86, 88, 91],
-    [82, 73, 75, 78, 73, 80, 73, 72, 79],
-    [75, 70, 70, 72, 69, 70, 70, 72, 74],
-];
 const IMPOSTAZIONI = { tempoVolo: 4.5, velocita: 360 };
 
 const statoGioco = {
@@ -115,7 +89,6 @@ function scalaGioco() {
 
 function mostraStato(messaggio, modalita = "") {
     testoStato.textContent = messaggio;
-    puntoStato.className = "status-dot" + (modalita ? " is-" + modalita : "");
 }
 
 const formatta = (valore) => String(valore).padStart(5, "0");
@@ -135,28 +108,28 @@ function disegnaSprite(sprite, [sx, sy, sl, sa], cx, cy, l, a) {
 }
 
 function disegnaSfondo() {
-    contesto.fillStyle = "#2599ee";
-    contesto.fillRect(0, 0, LARGHEZZA, ALTEZZA);
     if (!statoGioco.graficaCaricata) return;
-
-    const sfondo = sfondi[statoGioco.turno - 1];
-    const scala = Math.max(LARGHEZZA / sfondo.naturalWidth, ALTEZZA / sfondo.naturalHeight);
-    contesto.imageSmoothingEnabled = false;
-    contesto.drawImage(sfondo, (LARGHEZZA - sfondo.naturalWidth * scala) / 2, (ALTEZZA - sfondo.naturalHeight * scala) / 2, sfondo.naturalWidth * scala, sfondo.naturalHeight * scala);
+    const sfondo = SFONDI_TURNI[statoGioco.turno - 1][0];
+    if (campoGioco.dataset.sfondo !== sfondo) {
+        campoGioco.dataset.sfondo = sfondo;
+        videoSfondo.src = "./gif/" + sfondo;
+        videoSfondo.load();
+        videoSfondo.play().catch(() => {});
+    }
 }
 
-function disegnaAnatra(anatra) {
-    const direzione = anatra.velocitaX < 0 ? -1 : 1;
-    const riga = Math.abs(anatra.velocitaY) > Math.abs(anatra.velocitaX) * .45
-        ? anatra.velocitaY < 0 ? (direzione > 0 ? 2 : 3) : (direzione > 0 ? 4 : 5)
-        : direzione > 0 ? 0 : 1;
-    const [inizioX, larghezza] = COLONNE_SPRITE_ANATRE[riga][anatra.fotogramma];
-    const inizio = BORDI_SUPERIORI_ANATRE[riga][anatra.fotogramma];
-    const larghezzaSorgente = larghezza + 4;
-    const altezzaSorgente = BORDI_INFERIORI_ANATRE[riga][anatra.fotogramma] - inizio + 5;
-    const scalaSprite = Math.min(82 / larghezzaSorgente, 68 / altezzaSorgente) * scalaGioco();
-    disegnaSprite(spriteAnatre, [inizioX - 2, riga * 128 + inizio - 2, larghezzaSorgente, altezzaSorgente],
-        anatra.x, anatra.y, larghezzaSorgente * scalaSprite, altezzaSorgente * scalaSprite);
+function mostraAnatra(immagine, x, y, inclinazione) {
+    if (immagineAnatra.dataset.sorgente !== immagine.src) {
+        immagineAnatra.dataset.sorgente = immagine.src;
+        immagineAnatra.src = immagine.src;
+    }
+    const scala = Math.min(82 / immagine.naturalWidth, 68 / immagine.naturalHeight) * scalaGioco();
+    immagineAnatra.hidden = false;
+    immagineAnatra.style.left = x + "px";
+    immagineAnatra.style.top = y + "px";
+    immagineAnatra.style.width = immagine.naturalWidth * scala + "px";
+    immagineAnatra.style.height = immagine.naturalHeight * scala + "px";
+    immagineAnatra.style.transform = "translate(-50%, -50%) rotate(" + inclinazione + "rad)";
 }
 
 function disegnaMirino() {
@@ -165,19 +138,6 @@ function disegnaMirino() {
     const dimensione = 48 * scalaGioco();
     contesto.imageSmoothingEnabled = false;
     contesto.drawImage(statoGioco.turno === NUMERO_TURNI ? immagineMirinoBianco : immagineMirino, x - dimensione / 2, y - dimensione / 2, dimensione, dimensione);
-}
-
-function disegnaCaduta() {
-    const caduta = statoGioco.anatraInCaduta;
-    if (!caduta) return;
-
-    const progresso = Math.min(caduta.tempoTrascorso / DURATA_CADUTA, 1);
-    const fotogramma = FOTOGRAMMI_CADUTA[Math.min(Math.floor(caduta.tempoTrascorso / TEMPO_FOTOGRAMMA_CADUTA), FOTOGRAMMI_CADUTA.length - 1)];
-    const scala = scalaGioco() * .48;
-    disegnaSprite(spriteCaduta, fotogramma,
-        caduta.x + caduta.velocitaX * caduta.tempoTrascorso,
-        caduta.inizioY + (ALTEZZA * .78 - caduta.inizioY) * progresso * progresso,
-        fotogramma[2] * scala, fotogramma[3] * scala);
 }
 
 function disegnaEsitoColpo() {
@@ -235,9 +195,22 @@ function disegnaCaneIntro() {
 }
 
 function disegna() {
+    contesto.clearRect(0, 0, LARGHEZZA, ALTEZZA);
     disegnaSfondo();
-    if (statoGioco.anatra) disegnaAnatra(statoGioco.anatra);
-    disegnaCaduta();
+    if (statoGioco.anatra) {
+        const anatra = statoGioco.anatra;
+        const direzione = anatra.velocitaX < 0 ? "sinistra" : "destra";
+        mostraAnatra(animazioniAnatra[direzione], anatra.x, anatra.y, 0);
+    } else if (statoGioco.anatraInCaduta) {
+        const caduta = statoGioco.anatraInCaduta;
+        const progresso = Math.min(caduta.tempoTrascorso / DURATA_CADUTA, 1);
+        mostraAnatra(animazioniCaduta[caduta.direzione],
+            caduta.x + caduta.velocitaX * caduta.tempoTrascorso,
+            caduta.inizioY + (ALTEZZA * .78 - caduta.inizioY) * progresso * progresso,
+            caduta.direzione === "destra" ? .12 : -.12);
+    } else {
+        immagineAnatra.hidden = true;
+    }
     disegnaEsitoColpo();
     disegnaCaneIntro();
     disegnaMirino();
@@ -249,23 +222,21 @@ function creaAnatra() {
     const scala = scalaGioco();
     const direzione = Math.random() < .5 ? -1 : 1;
     const velocita = impostazioni.velocita * (1 + (turno - 1) * .18) * scala;
-    const haTraiettoriaOndulata = turno >= 2;
     const tipiTraiettoria = turno >= 4 ? ["onda", "zigzag", "tuffo"] : ["onda"];
-    const quotaBase = ALTEZZA * (haTraiettoriaOndulata ? .28 + Math.random() * .2 : .15 + Math.random() * .38);
+    const quotaBase = ALTEZZA * (.34 + Math.random() * .08);
+    const ampiezzaTraiettoria = Math.min(70 + (turno - 1) * 8, ALTEZZA * .2);
     statoGioco.anatra = {
         x: direzione === 1 ? -40 * scala : LARGHEZZA + 40 * scala,
         y: quotaBase,
         quotaBase,
         velocitaX: direzione * velocita,
-        velocitaY: haTraiettoriaOndulata ? 0 : (Math.random() - .5) * velocita * .72,
-        tipoTraiettoria: haTraiettoriaOndulata ? tipiTraiettoria[Math.floor(Math.random() * tipiTraiettoria.length)] : "lineare",
-        ampiezzaTraiettoria: haTraiettoriaOndulata ? Math.min(7 + (turno - 2) * 7, ALTEZZA * .14) : 0,
+        velocitaY: 0,
+        tipoTraiettoria: tipiTraiettoria[Math.floor(Math.random() * tipiTraiettoria.length)],
+        ampiezzaTraiettoria,
         frequenzaTraiettoria: 1.7 + turno * .25,
         faseTraiettoria: Math.random() * Math.PI * 2,
         tempoTraiettoria: 0,
         tempoResiduo: Math.max(2.1, impostazioni.tempoVolo - (turno - 1) * .35),
-        fotogramma: 0,
-        timerFotogramma: 0,
     };
     statoGioco.colpi = COLPI_PER_ANATRA;
     aggiornaPannello();
@@ -275,8 +246,39 @@ const attendi = (millisecondi) => new Promise((completa) => window.setTimeout(co
 
 function nascondiOverlay() {
     pannelloOverlay.hidden = true;
-    pannelloOverlay.classList.remove("is-round-intro");
+    pannelloOverlay.classList.remove("is-round-intro", "is-paused");
     pulsanteAvvio.hidden = false;
+}
+
+function mettiInPausa() {
+    if (statoGioco.fase !== "inCorso") return;
+    statoGioco.fase = "inPausa";
+    statoGioco.mira.visibile = false;
+    videoSfondo.pause();
+    sottotitoloOverlay.textContent = "";
+    titoloOverlay.textContent = "Pausa";
+    testoOverlay.textContent = "";
+    pannelloOverlay.classList.remove("is-round-intro");
+    pannelloOverlay.classList.add("is-paused");
+    pulsanteAvvio.textContent = "Riprendi";
+    pulsanteAvvio.hidden = false;
+    pannelloOverlay.hidden = false;
+}
+
+function riprendiPartita() {
+    if (statoGioco.fase !== "inPausa") return;
+    statoGioco.fase = "inCorso";
+    nascondiOverlay();
+    pulsanteAvvio.textContent = "Inizia a giocare";
+    videoSfondo.play().catch(() => {});
+}
+
+function attivaPausa() {
+    if (statoGioco.fase === "inPausa") {
+        riprendiPartita();
+    } else {
+        mettiInPausa();
+    }
 }
 
 async function continuaPartita(gettone, messaggio, mostraCaduta = false) {
@@ -384,29 +386,16 @@ function aggiornaAnatra(intervallo) {
 
     anatra.x += anatra.velocitaX * intervallo;
     anatra.tempoTraiettoria += intervallo;
-    if (anatra.ampiezzaTraiettoria) {
-        const avanzamento = anatra.tempoTraiettoria * anatra.frequenzaTraiettoria + anatra.faseTraiettoria;
-        let scostamento = Math.sin(avanzamento);
-        if (anatra.tipoTraiettoria === "zigzag") {
-            scostamento = (scostamento + Math.sin(avanzamento * 2.2) * .3) / 1.3;
-        } else if (anatra.tipoTraiettoria === "tuffo") {
-            scostamento *= .55 + .45 * (.5 + .5 * Math.sin(anatra.tempoTraiettoria * .6));
-        }
-        anatra.y = anatra.quotaBase + scostamento * anatra.ampiezzaTraiettoria;
-        anatra.velocitaY = Math.cos(avanzamento) * anatra.frequenzaTraiettoria * anatra.ampiezzaTraiettoria;
-    } else {
-        anatra.y += anatra.velocitaY * intervallo;
-        if ((anatra.y < ALTEZZA * .12 && anatra.velocitaY < 0) || (anatra.y > ALTEZZA * .64 && anatra.velocitaY > 0)) {
-            anatra.velocitaY *= -1;
-        }
+    const avanzamento = anatra.tempoTraiettoria * anatra.frequenzaTraiettoria + anatra.faseTraiettoria;
+    let scostamento = Math.sin(avanzamento);
+    if (anatra.tipoTraiettoria === "zigzag") {
+        scostamento = (scostamento + Math.sin(avanzamento * 2.2) * .3) / 1.3;
+    } else if (anatra.tipoTraiettoria === "tuffo") {
+        scostamento *= .55 + .45 * (.5 + .5 * Math.sin(anatra.tempoTraiettoria * .6));
     }
+    anatra.y = anatra.quotaBase + scostamento * anatra.ampiezzaTraiettoria;
+    anatra.velocitaY = Math.cos(avanzamento) * anatra.frequenzaTraiettoria * anatra.ampiezzaTraiettoria;
     anatra.tempoResiduo -= intervallo;
-    anatra.timerFotogramma += intervallo;
-    if (anatra.timerFotogramma >= .085) {
-        anatra.fotogramma = (anatra.fotogramma + Math.floor(anatra.timerFotogramma / .085)) % NUMERO_FOTOGRAMMI;
-        anatra.timerFotogramma %= .085;
-    }
-
     const margine = 55 * scalaGioco();
     if (anatra.tempoResiduo <= 0 || anatra.x < -margine || anatra.x > LARGHEZZA + margine) {
         statoGioco.anatreMancate += 1;
@@ -430,7 +419,10 @@ function spara() {
         statoGioco.punteggio += punti;
         statoGioco.anatreColpite += 1;
         statoGioco.anatra = null;
-        statoGioco.anatraInCaduta = { x: anatra.x, inizioY: anatra.y, velocitaX: anatra.velocitaX * .08, tempoTrascorso: 0 };
+        statoGioco.anatraInCaduta = {
+            x: anatra.x, inizioY: anatra.y, velocitaX: anatra.velocitaX * .08,
+            direzione: anatra.velocitaX < 0 ? "sinistra" : "destra", tempoTrascorso: 0,
+        };
         aggiornaPannello();
         continuaPartita(statoGioco.gettonePartita, "Colpita al colpo " + numeroColpo + "! +" + punti + " punti.", true);
         return;
@@ -458,17 +450,22 @@ function puntaMira(evento) {
 function aggiornaFotogramma(tempoAttuale) {
     const intervallo = Math.min((tempoAttuale - statoGioco.ultimoTempo) / 1000, .05);
     statoGioco.ultimoTempo = tempoAttuale;
-    if (statoGioco.fase === "inCorso") aggiornaAnatra(intervallo);
-    if (statoGioco.anatraInCaduta) statoGioco.anatraInCaduta.tempoTrascorso += intervallo;
-    if (statoGioco.esitoColpo) {
-        statoGioco.esitoColpo.tempoTrascorso += intervallo;
-        if (statoGioco.esitoColpo.tempoTrascorso >= .52) statoGioco.esitoColpo = null;
+    if (statoGioco.fase !== "inPausa") {
+        if (statoGioco.fase === "inCorso") aggiornaAnatra(intervallo);
+        if (statoGioco.anatraInCaduta) statoGioco.anatraInCaduta.tempoTrascorso += intervallo;
+        if (statoGioco.esitoColpo) {
+            statoGioco.esitoColpo.tempoTrascorso += intervallo;
+            if (statoGioco.esitoColpo.tempoTrascorso >= .52) statoGioco.esitoColpo = null;
+        }
     }
     disegna();
     requestAnimationFrame(aggiornaFotogramma);
 }
 
-pulsanteAvvio.addEventListener("click", avviaPartita);
+pulsanteAvvio.addEventListener("click", () => {
+    if (statoGioco.fase === "inPausa") riprendiPartita();
+    else avviaPartita();
+});
 
 
 telaGioco.addEventListener("pointermove", (evento) => {
@@ -508,14 +505,17 @@ telaGioco.addEventListener("pointercancel", (evento) => {
 });
 
 window.addEventListener("keydown", (evento) => {
-    if (evento.code === "Space") {
+    if ((evento.code === "Escape" || evento.code === "KeyP") && !evento.repeat) {
+        evento.preventDefault();
+        attivaPausa();
+    } else if (evento.code === "Space") {
         evento.preventDefault();
         spara();
     } else if (evento.code === "Enter" && statoGioco.fase === "pronta") {
         avviaPartita();
     }
 });
-
+sdnfkjasnfndkffffffdddddd
 window.addEventListener("resize", adattaCanvas);
 
 adattaCanvas();
@@ -534,12 +534,21 @@ const caricaImmagine = (percorso) => new Promise((completa, rifiuta) => {
     immagine.src = percorso;
 });
 
+const percorsiGifAnatre = Object.entries(GIF_ANATRE).map(([direzione, file]) => [direzione, "./gif/" + file]);
+const numeroGifAnatre = percorsiGifAnatre.length;
+
 Promise.all([
-    ...SFONDI_TURNI.map(([nome]) => "./img/" + nome + ".png"),
-    "./img/frame-anatra.png", "./img/anatra morta frame.png", "./img/mirino.png", "./img/mirino-bianco.png", "./img/frame-cane.png",
+    ...percorsiGifAnatre.map(([, percorso]) => percorso),
+    "./gif/anatra_caduta_destra.gif", "./gif/anatra_caduta_sinistra.gif",
+    "./img/mirino.png", "./img/mirino-bianco.png", "./img/frame-cane.png",
 ].map(caricaImmagine)).then((immagini) => {
-    [spriteAnatre, spriteCaduta, immagineMirino, immagineMirinoBianco, spriteCane] = immagini.splice(-5);
-    sfondi = immagini;
+    animazioniAnatra = Object.fromEntries(percorsiGifAnatre.map(([direzione], indice) => [
+        direzione, immagini[indice],
+    ]));
+    [animazioniCaduta, immagineMirino, immagineMirinoBianco, spriteCane] = [
+        { destra: immagini[numeroGifAnatre], sinistra: immagini[numeroGifAnatre + 1] },
+        ...immagini.slice(numeroGifAnatre + 2),
+    ];
     statoGioco.graficaCaricata = true;
     pulsanteAvvio.disabled = false;
     pulsanteAvvio.textContent = "Inizia a giocare";
@@ -547,7 +556,7 @@ Promise.all([
 }).catch((errore) => {
     sottotitoloOverlay.textContent = "Errore di caricamento";
     titoloOverlay.textContent = "Grafica non disponibile";
-    testoOverlay.textContent = errore.message + ". Controlla che i file grafici siano nella cartella img.";
+    testoOverlay.textContent = errore.message + ". Controlla che i file grafici siano nelle cartelle img e gif.";
     pulsanteAvvio.disabled = true;
     pulsanteAvvio.textContent = "Gioco non disponibile";
     mostraStato("Errore nel caricamento della grafica: " + errore.message);

@@ -74,14 +74,10 @@ Dettagli importanti:
 
 ### Animazione
 
-| Costante | Valore | Significato |
-| --- | ---: | --- |
-| `NUMERO_FOTOGRAMMI` | `9` | Fotogrammi del volo dell'anatra |
-| `DURATA_CADUTA` | `1.05 s` | Durata dell'animazione di caduta |
-| `FOTOGRAMMI_CADUTA` | 16 rettangoli `[x, y, larghezza, altezza]` | Ritagli dello sprite della caduta |
-| `TEMPO_FOTOGRAMMA_CADUTA` | `1.05 / 16 ≈ 0,066 s` | Durata di un fotogramma di caduta |
-| `COLONNE_SPRITE_ANATRE` | matrice 6×9 di `[x, larghezza]` | Posizione orizzontale di ogni fotogramma nello sprite sheet |
-| `BORDI_SUPERIORI_ANATRE` / `BORDI_INFERIORI_ANATRE` | matrici 6×9 | Bordo alto/basso utile di ogni fotogramma (per ritagliare lo sprite senza vuoto) |
+| Asset | Uso |
+| --- | --- |
+| GIF in `gif/` | Sfondi animati dei cinque round, volo dell'anatra nelle sei varianti di direzione e caduta |
+| `DURATA_CADUTA` (`1.05 s`) | Durata della caduta prima del bersaglio successivo |
 
 ### Dimensioni dinamiche
 
@@ -149,7 +145,7 @@ Un unico oggetto contiene tutto ciò che cambia durante la partita (righe 65-84)
 
 ## 6. Ciclo di una partita, passo per passo
 
-1. **Caricamento** — le 10 immagini vengono caricate con `Promise.all`. Finché non sono pronte il pulsante è disabilitato con scritta *"Caricamento…"*. Se una fallisce, appare *"Grafica non disponibile"*.
+1. **Caricamento** — gli sfondi, le varianti GIF dell'anatra e della caduta, il mirino e il cane vengono caricati con `Promise.all`. Finché non sono pronti il pulsante è disabilitato con scritta *"Caricamento…"*. Se un asset fallisce, appare *"Grafica non disponibile"*.
 2. **Schermata iniziale** (`pronta`) — sfondo del round 1 con il cane al centro e l'overlay *"Pronta la mira?"*.
 3. **`avviaPartita()`** — incrementa il gettone, **azzera** tutti i contatori (turno 1, punteggio 0, ecc.) e mostra l'intro del round.
 4. **`mostraIntroTurno()`** — fase `traRound`, overlay *"ROUND N · nome scenario"* per **1,8 s**, poi chiama `lanciaAnatra()`.
@@ -178,15 +174,15 @@ Ogni volta che parte un bersaglio viene generato `statoGioco.anatra` con questi 
 | Campo | Come viene calcolato |
 | --- | --- |
 | `x` | Parte **fuori schermo**: a sinistra (`-40·scala`) se va verso destra, a destra (`LARGHEZZA + 40·scala`) se va verso sinistra. La direzione è **casuale 50/50** |
-| `quotaBase` / `y` | Quota di volo. **Round 1:** tra il 15 % e il 53 % dell'altezza. **Round 2+:** tra il 28 % e il 48 % |
+| `quotaBase` / `y` | Quota centrale di volo, tra il 28 % e il 48 % dell'altezza in tutti i round |
 | `velocitaX` | `±velocita`, con `velocita = 360 · (1 + (turno−1)·0,18) · scalaGioco()` |
-| `velocitaY` | Round 1: casuale in `±0,36·velocita`. Round 2+: parte da 0 (la gestisce l'onda) |
-| `tipoTraiettoria` | Round 1: `"lineare"`. Round 2–3: `"onda"`. Round 4–5: a caso tra `"onda"`, `"zigzag"`, `"tuffo"` |
-| `ampiezzaTraiettoria` | Round 1: 0. Round 2+: `min(7 + (turno−2)·7, 14 % dell'altezza)` |
+| `velocitaY` | Parte da 0 e viene aggiornata in base alla traiettoria |
+| `tipoTraiettoria` | Round 1–3: `"onda"`. Round 4–5: a caso tra `"onda"`, `"zigzag"`, `"tuffo"` |
+| `ampiezzaTraiettoria` | `min(70 + (turno−1)·8, 20 % dell'altezza)` |
 | `frequenzaTraiettoria` | `1,7 + turno·0,25` |
 | `faseTraiettoria` | Fase iniziale casuale dell'onda (0–2π) |
 | `tempoResiduo` | `max(2,1 ; 4,5 − (turno−1)·0,35)` secondi di volo |
-| `fotogramma`, `timerFotogramma` | Stato dell'animazione alare |
+| Direzione GIF | GIF di volo scelto in base alla direzione orizzontale; la traiettoria verticale è gestita dal movimento |
 
 In più: `colpi` torna a **3** e il pannello viene aggiornato.
 
@@ -194,11 +190,11 @@ In più: `colpi` torna a **3** e il pannello viene aggiornato.
 
 | Round | Scenario | Velocità (px/s) | Tempo di volo | Traiettoria | Ampiezza onda |
 | :---: | --- | ---: | ---: | --- | ---: |
-| 1 | Prato classico | 360 | 4,50 s | lineare con rimbalzi | — |
-| 2 | Primavera | 425 | 4,15 s | onda | 7 |
-| 3 | Autunno | 490 | 3,80 s | onda | 14 |
-| 4 | Inverno | 554 | 3,45 s | onda / zigzag / tuffo | 21 |
-| 5 | Galassia (mirino bianco) | 619 | 3,10 s | onda / zigzag / tuffo | 28 |
+| 1 | Prato classico | 360 | 4,50 s | onda | 70 |
+| 2 | Primavera | 425 | 4,15 s | onda | 78 |
+| 3 | Autunno | 490 | 3,80 s | onda | 86 |
+| 4 | Inverno | 554 | 3,45 s | onda / zigzag / tuffo | 94 |
+| 5 | Galassia (mirino bianco) | 619 | 3,10 s | onda / zigzag / tuffo | 96 |
 
 ### Movimento — `aggiornaAnatra(intervallo)` (righe 381-415)
 
@@ -206,13 +202,12 @@ A ogni frame:
 
 1. **Avanzamento orizzontale:** `x += velocitaX · intervallo`.
 2. **Movimento verticale**, in base al tipo:
-   - **Lineare (round 1):** `y += velocitaY · intervallo`. Se l'anatra scende sotto il 64 % dell'altezza o sale sopra il 12 %, `velocitaY` cambia segno (**rimbalzo**).
    - **Onda:** `y = quotaBase + sin(t·frequenza + fase) · ampiezza`.
    - **Zigzag:** come l'onda, ma sommando una seconda sinusoide più veloce (`sin(2,2·angolo)·0,3`), normalizzata, per un movimento spigoloso.
    - **Tuffo:** l'onda è moltiplicata per un fattore lento (`0,55 … 1,0`) che fa alternare fasi di oscillazione ampia e ridotta.
-   - Per le onde `velocitaY` viene ricalcolata come derivata (coseno): serve a scegliere lo sprite giusto (salita/discesa).
+   - Per le onde `velocitaY` viene ricalcolata come derivata (coseno) per mantenere il movimento coerente con la curva.
 3. **Timer di volo:** `tempoResiduo -= intervallo`.
-4. **Animazione alare:** ogni **0,085 s** passa al fotogramma successivo (ciclo di 9).
+4. **Animazione alare:** il browser riproduce il GIF di volo scelto per direzione e inclinazione.
 5. **Fuga:** se `tempoResiduo ≤ 0` **oppure** l'anatra supera il margine (`55·scala` px) a sinistra o a destra → `anatreMancate += 1` e `continuaPartita(..., "La papera è scappata.")`.
 
 ---

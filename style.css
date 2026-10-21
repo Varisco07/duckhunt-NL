@@ -160,9 +160,36 @@ h1 span { color: var(--yellow); }
     inset: 0;
 }
 
-.canvas-wrap { overflow: hidden; background: #2599ee; }
+.canvas-wrap {
+    overflow: hidden;
+    background-color: #2599ee;
+}
+
+.game-background {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.duck-sprite {
+    position: absolute;
+    z-index: 1;
+    display: block;
+    max-width: none;
+    pointer-events: none;
+    image-rendering: pixelated;
+    transform-origin: center;
+}
+
+.duck-sprite[hidden] { display: none; }
 
 #gameCanvas {
+    position: relative;
+    z-index: 2;
     display: block;
     width: 100%;
     height: 100%;
@@ -173,6 +200,7 @@ h1 span { color: var(--yellow); }
 
 .game-overlay {
     position: absolute;
+    z-index: 3;
     inset: 0;
     display: flex;
     flex-direction: column;
@@ -204,6 +232,11 @@ h1 span { color: var(--yellow); }
 }
 
 .game-overlay.is-round-intro > * { position: relative; }
+
+.game-overlay.is-paused .overlay-kicker,
+.game-overlay.is-paused #overlayText { display: none; }
+
+.game-overlay.is-paused h2 { margin-bottom: 22px; }
 
 .game-overlay.is-round-intro .overlay-kicker {
     margin-bottom: 3px;
@@ -278,44 +311,14 @@ h1 span { color: var(--yellow); }
 .button-primary:hover { background: #ffe28a; }
 .button:disabled { cursor: not-allowed; opacity: .46; }
 
-.game-status {
+.visually-hidden {
     position: absolute;
-    z-index: 2;
-    right: 50%;
-    bottom: max(54px, calc(env(safe-area-inset-bottom) + 50px));
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: max-content;
-    max-width: min(90vw, 560px);
-    min-height: 32px;
-    padding: 0 12px;
-    border: 1px solid var(--line);
-    border-radius: 3px;
-    background: var(--cabinet);
-    box-shadow: 0 3px 12px rgba(10, 20, 26, .2);
-    transform: translateX(50%);
-    backdrop-filter: blur(8px);
-}
-
-.status-dot {
-    width: 7px;
-    height: 7px;
-    flex: 0 0 auto;
-    border-radius: 50%;
-    background: #a2a3a4;
-}
-
-.status-dot.is-active { background: var(--green); }
-.status-dot.is-loading { background: var(--yellow); }
-
-.game-status p {
+    width: 1px;
+    height: 1px;
     overflow: hidden;
-    margin: 0;
-    color: white;
-    font-size: 10px;
-    text-overflow: ellipsis;
+    clip: rect(0, 0, 0, 0);
     white-space: nowrap;
+    clip-path: inset(50%);
 }
 
 

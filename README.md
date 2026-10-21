@@ -75,9 +75,9 @@ Ogni round ha uno sfondo diverso e anatre più insidiose del precedente.
 
 | Round | Scenario | Traiettoria delle anatre |
 | :---: | --- | --- |
-| 1 | Prato classico | Volo lineare, con salite e discese che rimbalzano |
-| 2 | Primavera | Onda |
-| 3 | Autunno | Onda più ampia |
+| 1 | Prato classico | Onda |
+| 2 | Primavera | Onda più ampia |
+| 3 | Autunno | Onda ancora più ampia |
 | 4 | Inverno | Onda, **zigzag** o **tuffo** (a caso) |
 | 5 | Galassia | Onda, zigzag o tuffo, ampiezza massima. Qui il **mirino diventa bianco** per restare leggibile sullo sfondo scuro |
 
@@ -85,7 +85,7 @@ Da un round al successivo:
 
 - la **velocità** aumenta del **18 %** rispetto al round 1 per ogni round che passa;
 - il **tempo di volo** scende di **0,35 s** per round, fino a un minimo di **2,1 s**;
-- l'ampiezza dell'ondulazione cresce, entro il 14 % dell'altezza del campo.
+- l'ampiezza dell'ondulazione cresce, entro il 20 % dell'altezza del campo.
 
 ## Difficoltà
 
