@@ -233,6 +233,27 @@ h1 span { color: var(--yellow); }
 
 .game-overlay.is-round-intro > * { position: relative; }
 
+.round-banner {
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    pointer-events: none;
+}
+
+.game-overlay.is-round-intro .round-banner {
+    position: absolute;
+    inset: 0;
+    display: block;
+    transform: scale(.7);
+}
+
+.game-overlay.is-round-intro::before,
+.game-overlay.is-round-intro .overlay-kicker,
+.game-overlay.is-round-intro h2,
+.game-overlay.is-round-intro > p:not(.overlay-kicker) { display: none; }
+
 .game-overlay.is-paused .overlay-kicker,
 .game-overlay.is-paused #overlayText { display: none; }
 

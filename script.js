@@ -15,6 +15,7 @@ const testoPunteggio = $("#scoreDisplay");
 const testoRecord = $("#bestScoreDisplay");
 const testoColpi = $("#ammoDisplay");
 const testoStato = $("#statusText");
+const bannerRound = $("#roundBanner");
 
 let animazioniAnatra, animazioniCaduta, immagineMirino, immagineMirinoBianco, spriteCane;
 const SFONDI_TURNI = [
@@ -246,6 +247,7 @@ const attendi = (millisecondi) => new Promise((completa) => window.setTimeout(co
 
 function nascondiOverlay() {
     pannelloOverlay.hidden = true;
+    bannerRound.hidden = true;
     pannelloOverlay.classList.remove("is-round-intro", "is-paused");
     pulsanteAvvio.hidden = false;
 }
@@ -259,6 +261,7 @@ function mettiInPausa() {
     titoloOverlay.textContent = "Pausa";
     testoOverlay.textContent = "";
     pannelloOverlay.classList.remove("is-round-intro");
+    bannerRound.hidden = true;
     pannelloOverlay.classList.add("is-paused");
     pulsanteAvvio.textContent = "Riprendi";
     pulsanteAvvio.hidden = false;
@@ -311,6 +314,9 @@ async function continuaPartita(gettone, messaggio, mostraCaduta = false) {
 
 async function mostraIntroTurno(gettone) {
     statoGioco.fase = "traRound";
+    bannerRound.src = "./img/round" + statoGioco.turno + ".png";
+    bannerRound.alt = "Round " + statoGioco.turno + " - " + SFONDI_TURNI[statoGioco.turno - 1][1];
+    bannerRound.hidden = false;
     sottotitoloOverlay.textContent = "Nuovo scenario · " + SFONDI_TURNI[statoGioco.turno - 1][1];
     titoloOverlay.textContent = "ROUND " + statoGioco.turno;
     testoOverlay.textContent = BERSAGLI_PER_TURNO + " bersagli · la caccia continua";
@@ -515,7 +521,6 @@ window.addEventListener("keydown", (evento) => {
         avviaPartita();
     }
 });
-sdnfkjasnfndkffffffdddddd
 window.addEventListener("resize", adattaCanvas);
 
 adattaCanvas();
@@ -533,6 +538,8 @@ const caricaImmagine = (percorso) => new Promise((completa, rifiuta) => {
     immagine.onerror = () => rifiuta(new Error("Impossibile caricare " + percorso));
     immagine.src = percorso;
 });
+
+[1, 2, 3, 4, 5].forEach((n) => { new Image().src = "./img/round" + n + ".png"; });
 
 const percorsiGifAnatre = Object.entries(GIF_ANATRE).map(([direzione, file]) => [direzione, "./gif/" + file]);
 const numeroGifAnatre = percorsiGifAnatre.length;
