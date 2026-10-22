@@ -28,7 +28,7 @@ Un omaggio arcade in **pixel art** al classico sparatutto con le anatre, scritto
 2. Apri `index.html` con un browser moderno (Chrome, Edge, Firefox, Safari).
 3. Scegli la difficoltà e premi **Inizia a giocare**.
 
-Funziona anche **offline**: basta che la cartella `img` resti accanto ai file `index.html`, `style.css` e `script.js`, perché il gioco carica le immagini da lì.
+Funziona anche **offline**: basta che la cartella `img` resti accanto ai file `gioco.html`, `style.css` e `script.js`, perché il gioco carica le immagini da lì.
 
 > Se le immagini non si caricano, il gioco lo segnala con la schermata *"Grafica non disponibile"* e blocca il pulsante di avvio.
 

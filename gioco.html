@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#11131f">
+    <meta name="description" content="Caccia alle papere in stile arcade: prendi la mira, spara e affronta round sempre più veloci.">
+    <title>Duck Hunt — Caccia alla papera</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <main class="game-shell">
+        <header class="topbar">
+            <a class="back-link" href="index.html">Torna al sito</a>
+            <p class="edition">&copy; Varisco Nicolo' - Androni Lorenzo</p>
+        </header>
+
+        <section class="intro" aria-labelledby="page-title">
+            <div>
+                <p class="eyebrow">Stagione di caccia</p>
+                <h1 id="page-title">Duck <span>Hunt</span> NL</h1>
+            </div>
+            <p class="intro-copy">Le vedi, le prendi di mira, fai fuoco. Hai tre colpi per ogni papera: non lasciartele scappare.</p>
+        </section>
+
+        <section class="scoreboard" aria-label="Punteggio della partita">
+            <div class="score-card"><span>Round</span><strong id="roundDisplay">—</strong></div>
+            <div class="score-card"><span>Bersagli</span><strong id="hitDisplay">0 / 10</strong></div>
+            <div class="score-card"><span>Punteggio</span><strong id="scoreDisplay">00000</strong></div>
+            <div class="score-card"><span>Record</span><strong id="bestScoreDisplay">00000</strong></div>
+            <div class="score-card ammo-card"><span>Colpi</span><div id="ammoDisplay" role="img" aria-label="3 colpi rimasti"></div></div>
+        </section>
+
+        <section class="play-area" aria-label="Campo di caccia">
+            <div class="canvas-wrap">
+                <video class="game-background" id="gameBackground" autoplay muted loop playsinline aria-hidden="true"></video>
+                <img class="duck-sprite" id="duckSprite" alt="" aria-hidden="true" hidden>
+                <canvas id="gameCanvas" width="800" height="480" aria-label="Campo di gioco. Mira con il mouse e spara con il clic sinistro o Spazio."></canvas>
+                <div class="game-overlay" id="gameOverlay" data-fase="pronta">
+                    <img class="round-banner" id="roundBanner" alt="" hidden>
+                    <p class="overlay-kicker" id="overlayKicker">Una partita, cinque round</p>
+                    <h2 id="overlayTitle">Pronta la mira?</h2>
+                    <p id="overlayText">Hai tre colpi per papera. Più sei preciso, più punti guadagni: 100 al primo colpo, 60 al secondo, 30 al terzo.</p>
+                    <ul class="game-controls" aria-label="Comandi del gioco">
+                        <li><kbd>Mouse</kbd><span>Muovi per mirare</span></li>
+                        <li><kbd>Clic / Spazio</kbd><span>Spara</span></li>
+                        <li><kbd>P / Esc</kbd><span>Metti in pausa</span></li>
+                    </ul>
+                    <section class="final-results" aria-label="Risultati della partita">
+                        <dl class="final-stats">
+                            <div><dt>Punteggio</dt><dd id="finalScore">0</dd></div>
+                            <div><dt>Precisione</dt><dd id="finalAccuracy">0%</dd></div>
+                            <div><dt>Papere colpite</dt><dd id="finalHits">0 / 50</dd></div>
+                        </dl>
+                        <h3>Papere colpite per round</h3>
+                        <ol id="roundResults">
+                            <li><span id="resultRound1">Round 1</span><meter min="0" max="10" value="0" aria-labelledby="resultRound1"></meter><strong>0 / 10</strong></li>
+                            <li><span id="resultRound2">Round 2</span><meter min="0" max="10" value="0" aria-labelledby="resultRound2"></meter><strong>0 / 10</strong></li>
+                            <li><span id="resultRound3">Round 3</span><meter min="0" max="10" value="0" aria-labelledby="resultRound3"></meter><strong>0 / 10</strong></li>
+                            <li><span id="resultRound4">Round 4</span><meter min="0" max="10" value="0" aria-labelledby="resultRound4"></meter><strong>0 / 10</strong></li>
+                            <li><span id="resultRound5">Round 5</span><meter min="0" max="10" value="0" aria-labelledby="resultRound5"></meter><strong>0 / 10</strong></li>
+                        </ol>
+                    </section>
+                    <button class="button button-primary" id="startButton" type="button" disabled>Caricamento…</button>
+                </div>
+            </div>
+        </section>
+
+        <p class="visually-hidden" id="statusText" role="status" aria-live="polite">Caricamento dello scenario…</p>
+    </main>
+</body>
+</html>

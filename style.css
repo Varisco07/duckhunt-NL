@@ -195,7 +195,6 @@ h1 span { color: var(--yellow); }
     height: 100%;
     cursor: none;
     image-rendering: pixelated;
-    touch-action: none;
 }
 
 .game-overlay {
@@ -309,6 +308,51 @@ h1 span { color: var(--yellow); }
     text-shadow: 0 1px 5px #000;
     white-space: pre-line;
 }
+
+.game-controls, .final-results { display: none; }
+.game-overlay[data-fase="pronta"] .game-controls { display: flex; }
+.game-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 24px;
+    margin: 0 0 24px;
+    padding: 0;
+    list-style: none;
+    font-size: 11px;
+}
+.game-controls li { display: grid; gap: 8px; }
+.game-controls kbd {
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-bottom: 3px solid var(--yellow);
+    border-radius: 4px;
+    background: var(--night);
+    color: var(--yellow);
+    font: 700 11px Consolas, monospace;
+}
+.game-overlay[data-fase="conclusa"] {
+    justify-content: safe center;
+    overflow-y: auto;
+    padding: 84px 20px 24px;
+    background: rgba(13, 16, 27, .88);
+}
+.game-overlay[data-fase="conclusa"] > * { flex-shrink: 0; }
+.game-overlay[data-fase="conclusa"] > p:not(.overlay-kicker) { max-width: 60ch; margin: 12px 0 16px; }
+.game-overlay[data-fase="conclusa"] .final-results { display: block; }
+.final-results { width: min(100%, 460px); margin-bottom: 20px; }
+.final-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
+.final-stats div { padding: 14px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--night); }
+.final-stats dt { margin-bottom: 8px; color: var(--muted); font-size: 10px; }
+.final-stats dd { margin: 0; color: var(--yellow); font: 700 clamp(18px, 4vw, 28px) Consolas, monospace; }
+.final-results h3 { margin: 18px 0 12px; font-size: 11px; font-weight: 400; color: var(--muted); }
+#roundResults { display: grid; gap: 9px; margin: 0; padding: 0; list-style: none; font-size: 11px; }
+#roundResults li { display: grid; grid-template-columns: 60px 1fr 54px; align-items: center; gap: 12px; }
+#roundResults span { text-align: left; }
+#roundResults strong { color: var(--yellow); font: 700 11px Consolas, monospace; text-align: right; }
+#roundResults meter { width: 100%; height: 12px; border: 0; border-radius: 6px; background: #303748; }
+#roundResults meter::-webkit-meter-bar { border: 0; border-radius: 6px; background: #303748; }
+#roundResults meter::-webkit-meter-optimum-value { border-radius: 6px; background: var(--yellow); }
+#roundResults meter::-moz-meter-bar { border-radius: 6px; background: var(--yellow); }
 
 .button {
     min-height: 38px;

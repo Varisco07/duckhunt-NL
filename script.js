@@ -22,10 +22,6 @@ const SFONDI_TURNI = [
     ["sfondo_classico_50fps.mp4", "Prato classico"], ["sfondo_primavera_50fps.mp4", "Primavera"], ["sfondo_autunno_50fps.mp4", "Autunno"],
     ["sfondo_inverno_50fps.mp4", "Inverno"], ["sfondo_notte_50fps.mp4", "Galassia"],
 ];
-const GIF_ANATRE = {
-    destra: "anatra_destra.gif",
-    sinistra: "anatra_sinistra.gif",
-};
 
 let LARGHEZZA = 800;
 let ALTEZZA = 480;
@@ -37,21 +33,16 @@ const DURATA_CADUTA = 1.05;
 const CHIAVE_RECORD = "duck-hunt-best-score";
 const IMPOSTAZIONI = { tempoVolo: 4.5, velocita: 360 };
 
+const statoIniziale = {
+    turno: 1, bersagliTurno: 0, anatreColpite: 0, anatreMancate: 0, colpiSparati: 0, punteggio: 0,
+    colpi: COLPI_PER_ANATRA, anatra: null, anatraInCaduta: null, esitoColpo: null,
+};
 const statoGioco = {
+    ...statoIniziale,
+    colpitePerTurno: Array(NUMERO_TURNI).fill(0),
     fase: "pronta",
-    turno: 1,
-    bersagliTurno: 0,
-    anatreColpite: 0,
-    anatreMancate: 0,
-    colpiSparati: 0,
-    punteggio: 0,
     recordPersonale: 0,
     recordDisponibile: true,
-    colpi: COLPI_PER_ANATRA,
-    anatra: null,
-    anatraInCaduta: null,
-    esitoColpo: null,
-    gestoTouch: null,
     mira: { x: LARGHEZZA / 2, y: ALTEZZA / 2, visibile: false },
     ultimoTempo: 0,
     gettonePartita: 0,
@@ -75,7 +66,7 @@ function adattaCanvas() {
 
     const { anatra, anatraInCaduta, esitoColpo } = statoGioco;
     moltiplica(anatra, ["x", "velocitaX"], scalaX);
-    moltiplica(anatra, ["y", "quotaBase", "velocitaY", "ampiezzaTraiettoria"], scalaY);
+    moltiplica(anatra, ["y", "quotaBase", "ampiezzaTraiettoria"], scalaY);
     moltiplica(anatraInCaduta, ["x", "velocitaX"], scalaX);
     moltiplica(anatraInCaduta, ["inizioY"], scalaY);
     moltiplica(esitoColpo, ["x"], scalaX);
@@ -84,13 +75,9 @@ function adattaCanvas() {
     statoGioco.mira.y = ALTEZZA / 2;
 }
 
-function scalaGioco() {
-    return Math.max(.65, Math.min(LARGHEZZA / 800, ALTEZZA / 480, 2));
-}
+const scalaGioco = () => Math.max(.65, Math.min(LARGHEZZA / 800, ALTEZZA / 480, 2));
 
-function mostraStato(messaggio, modalita = "") {
-    testoStato.textContent = messaggio;
-}
+const mostraStato = (messaggio) => { testoStato.textContent = messaggio; };
 
 const formatta = (valore) => String(valore).padStart(5, "0");
 
@@ -101,11 +88,6 @@ function aggiornaPannello() {
     testoRecord.textContent = statoGioco.recordDisponibile ? formatta(statoGioco.recordPersonale) : "—";
     testoColpi.style.setProperty("--ammo-row", COLPI_PER_ANATRA - statoGioco.colpi);
     testoColpi.setAttribute("aria-label", statoGioco.colpi === 1 ? "1 colpo rimasto" : statoGioco.colpi + " colpi rimasti");
-}
-
-function disegnaSprite(sprite, [sx, sy, sl, sa], cx, cy, l, a) {
-    contesto.imageSmoothingEnabled = false;
-    contesto.drawImage(sprite, sx, sy, sl, sa, cx - l / 2, cy - a / 2, l, a);
 }
 
 function disegnaSfondo() {
@@ -192,7 +174,8 @@ function disegnaEsitoColpo() {
 function disegnaCaneIntro() {
     if (statoGioco.fase !== "pronta" || !statoGioco.graficaCaricata) return;
     const scala = 78 / 89 * scalaGioco();
-    disegnaSprite(spriteCane, [26, 46, 70, 89], LARGHEZZA * .5, ALTEZZA * .78, 70 * scala, 89 * scala);
+    contesto.imageSmoothingEnabled = false;
+    contesto.drawImage(spriteCane, 26, 46, 70, 89, LARGHEZZA * .5 - 35 * scala, ALTEZZA * .78 - 44.5 * scala, 70 * scala, 89 * scala);
 }
 
 function disegna() {
@@ -218,11 +201,10 @@ function disegna() {
 }
 
 function creaAnatra() {
-    const impostazioni = IMPOSTAZIONI;
     const turno = statoGioco.turno;
     const scala = scalaGioco();
     const direzione = Math.random() < .5 ? -1 : 1;
-    const velocita = impostazioni.velocita * (1 + (turno - 1) * .18) * scala;
+    const velocita = IMPOSTAZIONI.velocita * (1 + (turno - 1) * .18) * scala;
     const tipiTraiettoria = turno >= 4 ? ["onda", "zigzag", "tuffo"] : ["onda"];
     const quotaBase = ALTEZZA * (.34 + Math.random() * .08);
     const ampiezzaTraiettoria = Math.min(70 + (turno - 1) * 8, ALTEZZA * .2);
@@ -231,13 +213,12 @@ function creaAnatra() {
         y: quotaBase,
         quotaBase,
         velocitaX: direzione * velocita,
-        velocitaY: 0,
         tipoTraiettoria: tipiTraiettoria[Math.floor(Math.random() * tipiTraiettoria.length)],
         ampiezzaTraiettoria,
         frequenzaTraiettoria: 1.7 + turno * .25,
         faseTraiettoria: Math.random() * Math.PI * 2,
         tempoTraiettoria: 0,
-        tempoResiduo: Math.max(2.1, impostazioni.tempoVolo - (turno - 1) * .35),
+        tempoResiduo: Math.max(2.1, IMPOSTAZIONI.tempoVolo - (turno - 1) * .35),
     };
     statoGioco.colpi = COLPI_PER_ANATRA;
     aggiornaPannello();
@@ -252,22 +233,6 @@ function nascondiOverlay() {
     pulsanteAvvio.hidden = false;
 }
 
-function mettiInPausa() {
-    if (statoGioco.fase !== "inCorso") return;
-    statoGioco.fase = "inPausa";
-    statoGioco.mira.visibile = false;
-    videoSfondo.pause();
-    sottotitoloOverlay.textContent = "";
-    titoloOverlay.textContent = "Pausa";
-    testoOverlay.textContent = "";
-    pannelloOverlay.classList.remove("is-round-intro");
-    bannerRound.hidden = true;
-    pannelloOverlay.classList.add("is-paused");
-    pulsanteAvvio.textContent = "Riprendi";
-    pulsanteAvvio.hidden = false;
-    pannelloOverlay.hidden = false;
-}
-
 function riprendiPartita() {
     if (statoGioco.fase !== "inPausa") return;
     statoGioco.fase = "inCorso";
@@ -277,11 +242,23 @@ function riprendiPartita() {
 }
 
 function attivaPausa() {
-    if (statoGioco.fase === "inPausa") {
-        riprendiPartita();
-    } else {
-        mettiInPausa();
-    }
+    if (statoGioco.fase === "inPausa") return riprendiPartita();
+    if (statoGioco.fase !== "inCorso") return;
+    statoGioco.fase = "inPausa";
+    statoGioco.mira.visibile = false;
+    videoSfondo.pause();
+    nascondiOverlay();
+    pannelloOverlay.classList.add("is-paused");
+    mostraOverlay("", "Pausa", "", "Riprendi");
+}
+
+function mostraOverlay(sottotitolo, titolo, testo, pulsante) {
+    pannelloOverlay.dataset.fase = statoGioco.fase;
+    sottotitoloOverlay.textContent = sottotitolo;
+    titoloOverlay.textContent = titolo;
+    testoOverlay.textContent = testo;
+    pulsanteAvvio.textContent = pulsante;
+    pannelloOverlay.hidden = false;
 }
 
 async function continuaPartita(gettone, messaggio, mostraCaduta = false) {
@@ -296,7 +273,6 @@ async function continuaPartita(gettone, messaggio, mostraCaduta = false) {
         turnoFinito
             ? "Hai affrontato tutti i bersagli del turno. Caricamento del prossimo turno…"
             : messaggio + " Prossimo bersaglio: " + (statoGioco.bersagliTurno + 1) + "/" + BERSAGLI_PER_TURNO + ".",
-        "loading"
     );
 
     aggiornaPannello();
@@ -308,7 +284,6 @@ async function continuaPartita(gettone, messaggio, mostraCaduta = false) {
     if (statoGioco.turno === NUMERO_TURNI) return terminaPartita();
     statoGioco.turno += 1;
     statoGioco.bersagliTurno = 0;
-    aggiornaPannello();
     await mostraIntroTurno(gettone);
 }
 
@@ -317,13 +292,11 @@ async function mostraIntroTurno(gettone) {
     bannerRound.src = "./img/round" + statoGioco.turno + ".png";
     bannerRound.alt = "Round " + statoGioco.turno + " - " + SFONDI_TURNI[statoGioco.turno - 1][1];
     bannerRound.hidden = false;
-    sottotitoloOverlay.textContent = "Nuovo scenario · " + SFONDI_TURNI[statoGioco.turno - 1][1];
-    titoloOverlay.textContent = "ROUND " + statoGioco.turno;
-    testoOverlay.textContent = BERSAGLI_PER_TURNO + " bersagli · la caccia continua";
+    mostraOverlay("Nuovo scenario · " + SFONDI_TURNI[statoGioco.turno - 1][1],
+        "ROUND " + statoGioco.turno, BERSAGLI_PER_TURNO + " bersagli · la caccia continua", pulsanteAvvio.textContent);
     pannelloOverlay.classList.add("is-round-intro");
     pulsanteAvvio.hidden = true;
-    pannelloOverlay.hidden = false;
-    mostraStato("Preparati per il round " + statoGioco.turno + ".", "loading");
+    mostraStato("Preparati per il round " + statoGioco.turno + ".");
     aggiornaPannello();
 
     await attendi(1800);
@@ -345,22 +318,22 @@ function terminaPartita() {
     }
     const { recordDisponibile, colpiSparati, anatreColpite } = statoGioco;
     const precisione = colpiSparati ? Math.round(anatreColpite / colpiSparati * 100) : 0;
-    sottotitoloOverlay.textContent = "Partita conclusa";
-    titoloOverlay.textContent = nuovoRecord && recordDisponibile ? "Nuovo record!" : "Bella mira!";
-    testoOverlay.textContent =
-        "Punteggio: " + statoGioco.punteggio + " punti" +
-        "\nPapere abbattute: " + anatreColpite + " / " + (BERSAGLI_PER_TURNO * NUMERO_TURNI) +
-        " · mancate: " + statoGioco.anatreMancate +
-        "\nPrecisione: " + precisione + "% · colpi sparati: " + colpiSparati +
+    const valutazione = statoGioco.punteggio >= 4000 ? "Cecchino" : statoGioco.punteggio >= 2000 ? "Buona mira" : "Principiante";
+    $("#finalScore").textContent = formatta(statoGioco.punteggio);
+    $("#finalAccuracy").textContent = precisione + "%";
+    $("#finalHits").textContent = anatreColpite + " / " + BERSAGLI_PER_TURNO * NUMERO_TURNI;
+    document.querySelectorAll("#roundResults li").forEach((riga, indice) => {
+        riga.querySelector("meter").value = statoGioco.colpitePerTurno[indice];
+        riga.querySelector("strong").textContent = statoGioco.colpitePerTurno[indice] + " / " + BERSAGLI_PER_TURNO;
+    });
+    mostraOverlay(nuovoRecord && recordDisponibile ? "Partita conclusa · Nuovo record!" : "Partita conclusa", valutazione,
+        "Colpi sparati: " + colpiSparati + " · papere mancate: " + statoGioco.anatreMancate +
         "\nRecord personale: " + (recordDisponibile ? statoGioco.recordPersonale + " punti" : "salvataggio non disponibile") +
-        "\nVuoi fare un'altra partita?";
-    pulsanteAvvio.textContent = "Gioca ancora";
-    pannelloOverlay.hidden = false;
+        "\nVuoi fare un'altra partita?", "Gioca ancora");
     mostraStato(
         recordDisponibile
             ? "Partita completata: " + precisione + "% di precisione."
             : "Partita completata, ma il browser non consente di salvare il record.",
-        recordDisponibile ? "active" : ""
     );
     aggiornaPannello();
 }
@@ -371,18 +344,14 @@ function lanciaAnatra() {
     nascondiOverlay();
     mostraStato(
         "Turno " + statoGioco.turno + " · bersaglio " + (statoGioco.bersagliTurno + 1) + "/" + BERSAGLI_PER_TURNO + ": prendi la mira!",
-        "active"
     );
 }
 
 function avviaPartita() {
     if (!statoGioco.graficaCaricata) return;
     statoGioco.gettonePartita += 1;
-    Object.assign(statoGioco, {
-        turno: 1, bersagliTurno: 0, anatreColpite: 0, anatreMancate: 0, colpiSparati: 0, punteggio: 0,
-        colpi: COLPI_PER_ANATRA, anatra: null, anatraInCaduta: null, esitoColpo: null,
-    });
-    aggiornaPannello();
+    Object.assign(statoGioco, statoIniziale);
+    statoGioco.colpitePerTurno.fill(0);
     mostraIntroTurno(statoGioco.gettonePartita);
 }
 
@@ -400,7 +369,6 @@ function aggiornaAnatra(intervallo) {
         scostamento *= .55 + .45 * (.5 + .5 * Math.sin(anatra.tempoTraiettoria * .6));
     }
     anatra.y = anatra.quotaBase + scostamento * anatra.ampiezzaTraiettoria;
-    anatra.velocitaY = Math.cos(avanzamento) * anatra.frequenzaTraiettoria * anatra.ampiezzaTraiettoria;
     anatra.tempoResiduo -= intervallo;
     const margine = 55 * scalaGioco();
     if (anatra.tempoResiduo <= 0 || anatra.x < -margine || anatra.x > LARGHEZZA + margine) {
@@ -424,12 +392,11 @@ function spara() {
     if (colpita) {
         statoGioco.punteggio += punti;
         statoGioco.anatreColpite += 1;
-        statoGioco.anatra = null;
+        statoGioco.colpitePerTurno[statoGioco.turno - 1] += 1;
         statoGioco.anatraInCaduta = {
             x: anatra.x, inizioY: anatra.y, velocitaX: anatra.velocitaX * .08,
             direzione: anatra.velocitaX < 0 ? "sinistra" : "destra", tempoTrascorso: 0,
         };
-        aggiornaPannello();
         continuaPartita(statoGioco.gettonePartita, "Colpita al colpo " + numeroColpo + "! +" + punti + " punti.", true);
         return;
     }
@@ -450,7 +417,6 @@ function puntaMira(evento) {
         y: (evento.clientY - limiti.top) * ALTEZZA / limiti.height,
         visibile: true,
     };
-    return statoGioco.mira;
 }
 
 function aggiornaFotogramma(tempoAttuale) {
@@ -474,40 +440,12 @@ pulsanteAvvio.addEventListener("click", () => {
 });
 
 
-telaGioco.addEventListener("pointermove", (evento) => {
-    const punto = puntaMira(evento);
-    const gesto = statoGioco.gestoTouch;
-    if (evento.pointerType === "touch" && gesto && (punto.x - gesto.inizioX) ** 2 + (punto.y - gesto.inizioY) ** 2 > 144) {
-        gesto.spostato = true;
-    }
-});
-
-telaGioco.addEventListener("pointerleave", () => { statoGioco.mira.visibile = false; });
-
-telaGioco.addEventListener("pointerdown", (evento) => {
+telaGioco.addEventListener("mousemove", puntaMira);
+telaGioco.addEventListener("mouseleave", () => { statoGioco.mira.visibile = false; });
+telaGioco.addEventListener("mousedown", (evento) => {
     if (evento.button !== 0) return;
-    const punto = puntaMira(evento);
-    if (evento.pointerType !== "touch") return spara();
-    evento.preventDefault();
-    telaGioco.setPointerCapture(evento.pointerId);
-    statoGioco.gestoTouch = { inizioX: punto.x, inizioY: punto.y, spostato: false };
-});
-
-telaGioco.addEventListener("pointerup", (evento) => {
-    if (evento.pointerType !== "touch") return;
-    const gesto = statoGioco.gestoTouch;
-    statoGioco.gestoTouch = null;
-    if (gesto && !gesto.spostato) {
-        puntaMira(evento);
-        spara();
-    }
-    statoGioco.mira.visibile = false;
-});
-
-telaGioco.addEventListener("pointercancel", (evento) => {
-    if (evento.pointerType !== "touch") return;
-    statoGioco.gestoTouch = null;
-    statoGioco.mira.visibile = false;
+    puntaMira(evento);
+    spara();
 });
 
 window.addEventListener("keydown", (evento) => {
@@ -541,30 +479,23 @@ const caricaImmagine = (percorso) => new Promise((completa, rifiuta) => {
 
 [1, 2, 3, 4, 5].forEach((n) => { new Image().src = "./img/round" + n + ".png"; });
 
-const percorsiGifAnatre = Object.entries(GIF_ANATRE).map(([direzione, file]) => [direzione, "./gif/" + file]);
-const numeroGifAnatre = percorsiGifAnatre.length;
-
 Promise.all([
-    ...percorsiGifAnatre.map(([, percorso]) => percorso),
+    "./gif/anatra_destra.gif", "./gif/anatra_sinistra.gif",
     "./gif/anatra_caduta_destra.gif", "./gif/anatra_caduta_sinistra.gif",
     "./img/mirino.png", "./img/mirino-bianco.png", "./img/frame-cane.png",
-].map(caricaImmagine)).then((immagini) => {
-    animazioniAnatra = Object.fromEntries(percorsiGifAnatre.map(([direzione], indice) => [
-        direzione, immagini[indice],
-    ]));
-    [animazioniCaduta, immagineMirino, immagineMirinoBianco, spriteCane] = [
-        { destra: immagini[numeroGifAnatre], sinistra: immagini[numeroGifAnatre + 1] },
-        ...immagini.slice(numeroGifAnatre + 2),
-    ];
+].map(caricaImmagine)).then(([destra, sinistra, cadutaDestra, cadutaSinistra, mirino, mirinoBianco, cane]) => {
+    animazioniAnatra = { destra, sinistra };
+    animazioniCaduta = { destra: cadutaDestra, sinistra: cadutaSinistra };
+    immagineMirino = mirino;
+    immagineMirinoBianco = mirinoBianco;
+    spriteCane = cane;
     statoGioco.graficaCaricata = true;
     pulsanteAvvio.disabled = false;
     pulsanteAvvio.textContent = "Inizia a giocare";
-    mostraStato("Pronto: le papere ora volano veloci. Scegli la difficoltà e inizia.");
+    mostraStato("Pronto: muovi il mouse per mirare e premi Inizia a giocare.");
 }).catch((errore) => {
-    sottotitoloOverlay.textContent = "Errore di caricamento";
-    titoloOverlay.textContent = "Grafica non disponibile";
-    testoOverlay.textContent = errore.message + ". Controlla che i file grafici siano nelle cartelle img e gif.";
+    mostraOverlay("Errore di caricamento", "Grafica non disponibile",
+        errore.message + ". Controlla che i file grafici siano nelle cartelle img e gif.", "Gioco non disponibile");
     pulsanteAvvio.disabled = true;
-    pulsanteAvvio.textContent = "Gioco non disponibile";
     mostraStato("Errore nel caricamento della grafica: " + errore.message);
 });
