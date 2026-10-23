@@ -52,7 +52,7 @@ button, select { font: inherit; }
     gap: 14px;
 }
 
-.back-link, .edition {
+.edition {
     margin: 0;
     color: white;
     font-size: 9px;
@@ -63,8 +63,7 @@ button, select { font: inherit; }
     text-transform: uppercase;
 }
 
-.back-link { transition: color 140ms ease; }
-.back-link:hover { color: var(--yellow); }
+
 .edition { opacity: .75; }
 
 .intro {
@@ -367,7 +366,7 @@ h1 span { color: var(--yellow); }
     transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
 }
 
-.button:focus-visible, .back-link:focus-visible {
+.button:focus-visible {
     outline: 2px solid var(--yellow);
     outline-offset: 3px;
 }
@@ -390,7 +389,6 @@ h1 span { color: var(--yellow); }
 @media (max-width: 600px) {
     .topbar { top: max(9px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); }
     .edition { display: none; }
-    .back-link { font-size: 8px; }
     .intro { top: 60px; left: max(10px, env(safe-area-inset-left)); }
     h1 { font-size: 23px; }
     .eyebrow { font-size: 7px; }
