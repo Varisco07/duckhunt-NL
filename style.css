@@ -1,14 +1,14 @@
 :root {
     color-scheme: dark;
     --night: #11131f;
-    --cabinet: rgba(23, 25, 40, .83);
+    --cabinet: #20291f;
     --line: rgba(236, 232, 215, .2);
     --paper: #f6f0dc;
     --muted: #c1c2c7;
     --yellow: #f6cf58;
     --red: #ed6858;
     --green: #8abf73;
-    font-family: "Trebuchet MS", Arial, sans-serif;
+    font-family: Arial, sans-serif;
     color: var(--paper);
     background: var(--night);
 }
@@ -87,7 +87,7 @@ button, select { font: inherit; }
 
 h1 {
     margin: 0;
-    font: 400 30px/.95 Impact, "Arial Narrow", sans-serif;
+    font: 700 27px/1 "Courier New", monospace;
     letter-spacing: .035em;
     text-shadow: 0 2px 6px rgba(10, 20, 26, .72);
     text-transform: uppercase;
@@ -107,10 +107,9 @@ h1 span { color: var(--yellow); }
     grid-template-columns: 1fr 1.1fr 1.35fr 1fr 1fr;
     align-items: stretch;
     border: 1px solid var(--line);
-    border-radius: 4px;
+    border-radius: 0;
     background: var(--cabinet);
-    box-shadow: 0 3px 12px rgba(10, 20, 26, .22);
-    backdrop-filter: blur(8px);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, .35);
 }
 
 .score-card {
@@ -128,7 +127,7 @@ h1 span { color: var(--yellow); }
     display: block;
     margin-bottom: 2px;
     color: #d7d4c8;
-    font-size: 7px;
+    font-size: 9px;
     font-weight: 700;
     letter-spacing: .13em;
     text-transform: uppercase;
@@ -293,7 +292,7 @@ h1 span { color: var(--yellow); }
 .game-overlay h2 {
     margin: 0;
     color: var(--paper);
-    font: 400 clamp(36px, 7vw, 76px)/.95 Impact, "Arial Narrow", sans-serif;
+    font: 700 clamp(30px, 5vw, 56px)/1.05 "Courier New", monospace;
     letter-spacing: .035em;
     text-shadow: 0 3px 14px rgba(0, 0, 0, .8);
     text-transform: uppercase;
@@ -325,7 +324,7 @@ h1 span { color: var(--yellow); }
     padding: 7px 10px;
     border: 1px solid var(--line);
     border-bottom: 3px solid var(--yellow);
-    border-radius: 4px;
+    border-radius: 0;
     background: var(--night);
     color: var(--yellow);
     font: 700 11px Consolas, monospace;
@@ -358,8 +357,8 @@ h1 span { color: var(--yellow); }
     min-height: 38px;
     padding: 0 16px;
     border: 1px solid transparent;
-    border-radius: 3px;
-    font-size: 10px;
+    border-radius: 0;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: .09em;
     text-transform: uppercase;
@@ -376,15 +375,6 @@ h1 span { color: var(--yellow); }
 .button-primary:hover { background: #ffe28a; }
 .button:disabled { cursor: not-allowed; opacity: .46; }
 
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    clip-path: inset(50%);
-}
 
 
 @media (max-width: 600px) {

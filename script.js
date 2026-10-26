@@ -14,7 +14,6 @@ const testoBersagli = $("#hitDisplay");
 const testoPunteggio = $("#scoreDisplay");
 const testoRecord = $("#bestScoreDisplay");
 const testoColpi = $("#ammoDisplay");
-const testoStato = $("#statusText");
 const bannerRound = $("#roundBanner");
 
 let animazioniAnatra, animazioniCaduta, immagineMirino, immagineMirinoBianco, spriteCane;
@@ -76,8 +75,6 @@ function adattaCanvas() {
 }
 
 const scalaGioco = () => Math.max(.65, Math.min(LARGHEZZA / 800, ALTEZZA / 480, 2));
-
-const mostraStato = (messaggio) => { testoStato.textContent = messaggio; };
 
 const formatta = (valore) => String(valore).padStart(5, "0");
 
@@ -269,12 +266,6 @@ async function continuaPartita(gettone, messaggio, mostraCaduta = false) {
     statoGioco.mira.visibile = false;
 
     const turnoFinito = statoGioco.bersagliTurno >= BERSAGLI_PER_TURNO;
-    mostraStato(
-        turnoFinito
-            ? "Hai affrontato tutti i bersagli del turno. Caricamento del prossimo turno…"
-            : messaggio + " Prossimo bersaglio: " + (statoGioco.bersagliTurno + 1) + "/" + BERSAGLI_PER_TURNO + ".",
-    );
-
     aggiornaPannello();
     await attendi(mostraCaduta ? DURATA_CADUTA * 1000 : 900);
     if (statoGioco.fase !== "traBersagli" || statoGioco.gettonePartita !== gettone) return;
@@ -296,7 +287,6 @@ async function mostraIntroTurno(gettone) {
         "ROUND " + statoGioco.turno, BERSAGLI_PER_TURNO + " bersagli · la caccia continua", pulsanteAvvio.textContent);
     pannelloOverlay.classList.add("is-round-intro");
     pulsanteAvvio.hidden = true;
-    mostraStato("Preparati per il round " + statoGioco.turno + ".");
     aggiornaPannello();
 
     await attendi(1800);
@@ -330,11 +320,6 @@ function terminaPartita() {
         "Colpi sparati: " + colpiSparati + " · papere mancate: " + statoGioco.anatreMancate +
         "\nRecord personale: " + (recordDisponibile ? statoGioco.recordPersonale + " punti" : "salvataggio non disponibile") +
         "\nVuoi fare un'altra partita?", "Gioca ancora");
-    mostraStato(
-        recordDisponibile
-            ? "Partita completata: " + precisione + "% di precisione."
-            : "Partita completata, ma il browser non consente di salvare il record.",
-    );
     aggiornaPannello();
 }
 
@@ -342,9 +327,6 @@ function lanciaAnatra() {
     statoGioco.fase = "inCorso";
     creaAnatra();
     nascondiOverlay();
-    mostraStato(
-        "Turno " + statoGioco.turno + " · bersaglio " + (statoGioco.bersagliTurno + 1) + "/" + BERSAGLI_PER_TURNO + ": prendi la mira!",
-    );
 }
 
 function avviaPartita() {
@@ -405,8 +387,6 @@ function spara() {
     if (statoGioco.colpi === 0) {
         statoGioco.anatreMancate += 1;
         continuaPartita(statoGioco.gettonePartita, "Colpi esauriti: papera mancata.");
-    } else {
-        mostraStato("Mancato. Restano " + (statoGioco.colpi === 1 ? "1 colpo" : statoGioco.colpi + " colpi") + ".");
     }
 }
 
@@ -492,10 +472,8 @@ Promise.all([
     statoGioco.graficaCaricata = true;
     pulsanteAvvio.disabled = false;
     pulsanteAvvio.textContent = "Inizia a giocare";
-    mostraStato("Pronto: muovi il mouse per mirare e premi Inizia a giocare.");
 }).catch((errore) => {
     mostraOverlay("Errore di caricamento", "Grafica non disponibile",
         errore.message + ". Controlla che i file grafici siano nelle cartelle img e gif.", "Gioco non disponibile");
     pulsanteAvvio.disabled = true;
-    mostraStato("Errore nel caricamento della grafica: " + errore.message);
 });

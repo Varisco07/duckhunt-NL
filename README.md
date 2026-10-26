@@ -1,153 +1,140 @@
-# 🦆 Duck Hunt NL
+# Duck Hunt NL
 
-> Le vedi, le prendi di mira, fai fuoco. Tre colpi per ogni papera, cinque scenari, nessuna pietà.
-
-Un omaggio arcade in **pixel art** al classico sparatutto con le anatre, scritto in HTML, CSS e JavaScript puro. Nessuna libreria, nessun build, nessuna installazione: si apre il file e si gioca.
+Un gioco arcade in pixel art ispirato a Duck Hunt, realizzato con HTML, CSS e JavaScript puro. Il progetto comprende un sito informativo e una pagina di gioco, senza framework o dipendenze esterne.
 
 **Autori:** Varisco Nicolò · Androni Lorenzo
 
----
+## Avvio
 
-## Indice
+1. Conserva l’intera cartella del progetto, comprese `img` e `gif`.
+2. Apri `index.html` in un browser desktop aggiornato.
+3. Premi **Gioca ora** per aprire `gioco.html`.
+4. Attendi il caricamento delle immagini e premi **Inizia a giocare**.
 
-1. [Avvio rapido](#avvio-rapido)
-2. [Comandi](#comandi)
-3. [Come si gioca](#come-si-gioca)
-4. [Punteggio](#punteggio)
-5. [Round e scenari](#round-e-scenari)
-6. [Difficoltà](#difficoltà)
-7. [Struttura del progetto](#struttura-del-progetto)
-8. [Dettagli tecnici](#dettagli-tecnici)
-9. [Personalizzare il gioco](#personalizzare-il-gioco)
-
----
-
-## Avvio rapido
-
-1. Scarica o clona la cartella del progetto.
-2. Apri `index.html` con un browser moderno (Chrome, Edge, Firefox, Safari).
-3. Scegli la difficoltà e premi **Inizia a giocare**.
-
-Funziona anche **offline**: basta che la cartella `img` resti accanto ai file `gioco.html`, `style.css` e `script.js`, perché il gioco carica le immagini da lì.
-
-> Se le immagini non si caricano, il gioco lo segnala con la schermata *"Grafica non disponibile"* e blocca il pulsante di avvio.
+È possibile aprire direttamente `gioco.html`. Le risorse sono locali, quindi non è necessaria una connessione Internet per giocare. Il browser deve supportare i video MP4 inclusi.
 
 ## Comandi
 
-| Azione | Mouse e tastiera | Telefono o tablet |
-| --- | --- | --- |
-| Mirare | Muovi il puntatore sul campo | Trascina il dito sul campo |
-| Sparare | Clic sinistro oppure **Spazio** | Tocca il campo |
-| Iniziare la partita | Pulsante oppure **Invio** | Pulsante |
+| Azione | Comando |
+| --- | --- |
+| Mirare | Muovere il mouse sul campo |
+| Sparare | Clic sinistro oppure Spazio |
+| Avviare la prima partita | Pulsante oppure Invio nella fase iniziale |
+| Mettere in pausa / riprendere | P oppure Esc durante il volo |
+| Riprendere dalla pausa | Anche pulsante Riprendi |
+| Rigiocare a fine partita | Pulsante Gioca ancora |
 
-Su dispositivi touch **trascinare serve solo a mirare**: rilasciare il dito dopo uno spostamento non spara. Per fare fuoco bisogna toccare senza trascinare, così non parte mai un colpo per errore.
+Il gioco è pensato per mouse e tastiera. Il layout si adatta alla finestra, ma non è implementata una gestione dedicata dei gesti touch. La pausa si attiva durante il volo, non durante le introduzioni o le attese tra bersagli.
 
-## Come si gioca
+## Regole e punteggio
 
-- Un'anatra attraversa il campo: mira e spara prima che esca dallo schermo o scada il tempo di volo.
-- Per **ogni anatra** hai **3 colpi** (l'icona delle munizioni a fianco del punteggio mostra quanti ne restano).
-- Ogni bersaglio conta, sia colpito sia mancato: **un round dura sempre 10 bersagli**.
-- Dopo il decimo bersaglio parte il round successivo, con un nuovo scenario e una schermata di annuncio. Dopo il **quinto round** la partita finisce.
-- Quando colpisci un'anatra, questa cade con una breve animazione prima che compaia la successiva.
-- Ogni colpo mostra un riscontro sul campo: **+punti** se a segno, **MANCATO** altrimenti.
+- Una partita comprende **5 round da 10 bersagli**, per un totale di 50 anatre.
+- Ogni anatra concede **3 colpi**, ripristinati al bersaglio successivo.
+- Colpire al primo tentativo assegna **100 punti**, al secondo **60**, al terzo **30**.
+- Un’anatra è mancata se esaurisci i colpi, se termina il suo tempo di volo o se esce dal campo.
+- Ogni bersaglio conta per completare il round, sia colpito sia mancato.
+- Dopo un colpo a segno viene mostrata la caduta; il campo indica anche l’esito dello sparo.
 
-## Punteggio
+Il massimo teorico è `5 × 10 × 100 = 5000 punti`. Alla fine vengono mostrati punteggio, colpite su 50, mancate, colpi sparati, precisione e colpite per round. La precisione è `colpite / colpi sparati × 100`, arrotondata; se non vengono sparati colpi vale zero.
 
-| Colpo che abbatte l'anatra | Punti |
-| --- | ---: |
-| Primo | **100** |
-| Secondo | **60** |
-| Terzo | **30** |
+Il record è salvato nel `localStorage` del browser e non è condiviso tra dispositivi. Lettura e scrittura sono sincrone e protette da `try/catch`: se il salvataggio non è disponibile, la partita può comunque proseguire.
 
-Il massimo teorico è quindi `10 bersagli × 5 round × 100 punti = 5000`.
+## Round e difficoltà
 
-A fine partita il gioco mostra:
+Non è presente un selettore di difficoltà. La configurazione iniziale è `IMPOSTAZIONI = { tempoVolo: 4.5, velocita: 360 }`; la difficoltà cresce con il round.
 
-- punteggio finale e **record personale**;
-- anatre abbattute su 50 e anatre mancate;
-- colpi sparati e **precisione** (anatre colpite / colpi sparati).
+| Round | Scenario | Traiettorie | Fattore velocità | Tempo massimo di volo |
+| --- | --- | --- | --- | --- |
+| 1 | Prato classico | Onda | 1,00 | 4,50 s |
+| 2 | Primavera | Onda | 1,18 | 4,15 s |
+| 3 | Autunno | Onda | 1,36 | 3,80 s |
+| 4 | Inverno | Onda, zigzag o tuffo | 1,54 | 3,45 s |
+| 5 | Galassia | Onda, zigzag o tuffo | 1,72 | 3,10 s |
 
-Il record viene salvato nel `localStorage` del browser, quindi resta sul dispositivo in uso. Se il browser blocca il salvataggio (per esempio in navigazione privata), il gioco funziona lo stesso e lo segnala al posto del record.
-
-## Round e scenari
-
-Ogni round ha uno sfondo diverso e anatre più insidiose del precedente.
-
-| Round | Scenario | Traiettoria delle anatre |
-| :---: | --- | --- |
-| 1 | Prato classico | Onda |
-| 2 | Primavera | Onda più ampia |
-| 3 | Autunno | Onda ancora più ampia |
-| 4 | Inverno | Onda, **zigzag** o **tuffo** (a caso) |
-| 5 | Galassia | Onda, zigzag o tuffo, ampiezza massima. Qui il **mirino diventa bianco** per restare leggibile sullo sfondo scuro |
-
-Da un round al successivo:
-
-- la **velocità** aumenta del **18 %** rispetto al round 1 per ogni round che passa;
-- il **tempo di volo** scende di **0,35 s** per round, fino a un minimo di **2,1 s**;
-- l'ampiezza dell'ondulazione cresce, entro il 20 % dell'altezza del campo.
-
-## Difficoltà
-
-La difficoltà si sceglie prima di partire e **resta bloccata fino alla fine della partita**; si può cambiare di nuovo quando la partita è conclusa.
-
-| Livello | Velocità iniziale | Tempo di volo iniziale |
-| --- | ---: | ---: |
-| Facile | 230 | 6 s |
-| Normale | 360 | 4,5 s |
-| Difficile | 500 | 3,3 s |
-
-La velocità è un valore interno al gioco (pixel al secondo su un campo di 800 px di larghezza) e viene scalata con le dimensioni dello schermo.
+Il fattore moltiplica la velocità base, poi adattata alla scala del campo. Ogni round aggiunge il 18% della velocità base: non è un incremento composto. Il tempo diminuisce di 0,35 secondi per round, con un limite minimo nel codice di 2,1 secondi. L’uscita dal campo può terminare il bersaglio prima del tempo massimo. L’ampiezza della traiettoria cresce entro il 20% dell’altezza del campo. Nell’ultimo round viene usato il mirino bianco.
 
 ## Struttura del progetto
 
-```
+```text
 duckhunt-NL/
-├── index.html        Pagina e interfaccia (punteggi, overlay, selettore difficoltà)
-├── style.css         Grafica, layout e adattamento agli schermi piccoli
-├── script.js         Logica di gioco, disegno su canvas e comandi
-├── README.md
-└── img/
-    ├── sfondo.png              Round 1 · prato classico
-    ├── sfondo primavera.png    Round 2
-    ├── sfondo autunno.png      Round 3
-    ├── sfondo inverno.png      Round 4
-    ├── sfondo galassia.png     Round 5
-    ├── frame-anatra.png        Sprite sheet dell'anatra in volo (6 direzioni × 9 fotogrammi)
-    ├── anatra morta frame.png  Fotogrammi dell'animazione di caduta
-    ├── frame-cane.png          Il cane della schermata iniziale
-    ├── mirino.png              Mirino standard (round 1–4)
-    ├── mirino-bianco.png       Mirino bianco (round 5)
-    ├── colpi.png               Icona delle munizioni
-    └── volo anatra speciale.png  Sprite extra, non usato dal gioco
+|-- index.html                         Sito: regole, comandi, scenari e FAQ
+|-- sito.css                           Stile del sito informativo
+|-- gioco.html                         Campo, punteggi, pannelli e risultati
+|-- style.css                          Stile del gioco
+|-- script.js                          Stato, regole, eventi e animazione
+|-- README.md                          Guida alla versione corrente
+|-- DUCK_HUNT_logica-e-comandi.md       Documento tecnico di una versione precedente
+|-- Progetto TPSI (1).pdf               Consegna del progetto
+|-- img/                               Mirini, cane, munizioni e banner dei round
+|-- gif/                               GIF delle anatre e video MP4 degli scenari
+|-- presentazione/
+    |-- Duck_Hunt_NL.pptx               Presentazione di 17 slide
+    |-- Duck_Hunt_NL.pdf                Presentazione in PDF
+    |-- Duck_Hunt_NL_Discorso.pdf        Guida all’esposizione, senza divisione dei relatori
 ```
 
-## Dettagli tecnici
+Il foglio delle ore di lavoro è preparato separatamente e va incluso nella consegna insieme alla cartella del progetto. Il documento `DUCK_HUNT_logica-e-comandi.md` contiene riferimenti a una versione precedente: per il comportamento attuale fanno riferimento questo README e il codice.
 
-- **Rendering:** un unico `<canvas>` ridisegnato a ogni frame con `requestAnimationFrame`. Il canvas si adatta alla dimensione della finestra e al `devicePixelRatio` (limitato a 2), e anatre, colpi e riscontri vengono riscalati quando la finestra cambia.
-- **Pixel art nitida:** lo smoothing delle immagini è disattivato, così gli sprite non sfocano quando vengono ingranditi.
-- **Animazioni a sprite:** l'anatra sceglie la riga dello sprite sheet in base alla direzione (destra, sinistra, su, giù) e cicla 9 fotogrammi; la caduta usa 16 fotogrammi ritagliati a coordinate fisse.
-- **Hitbox:** un colpo è a segno se il mirino è entro circa 27 × 21 px dal centro dell'anatra (scalati con le dimensioni del campo).
-- **Flusso asincrono:** le pause tra bersagli e round usano `async/await` con un *gettone di partita*, così una pausa pendente non può interferire con una partita nuova.
-- **Input unificato:** gli eventi `pointer` gestiscono insieme mouse e touch; la tastiera aggiunge Spazio e Invio.
-- **Accessibilità:** la barra di stato è una regione `aria-live`, e le munizioni espongono il numero di colpi rimasti come testo alternativo.
-- **Zero dipendenze:** nessun framework, nessun font o script esterno.
+## Come funziona JavaScript
 
-## Personalizzare il gioco
+### Stato e funzioni
 
-Le costanti principali sono all'inizio di `script.js`:
+`statoGioco` raccoglie fase, turno, bersagli, punteggio, munizioni, mira, anatra corrente e risultati. Le fasi sono `pronta`, `traRound`, `inCorso`, `traBersagli`, `inPausa` e `conclusa`. Le funzioni separano avvio, creazione dei bersagli, movimento, sparo, disegno e fine partita. I controlli sulla fase impediscono azioni fuori tempo.
 
-| Costante | Cosa controlla | Valore |
-| --- | --- | ---: |
+### Scena e animazione
+
+La scena combina tre livelli:
+
+- Un elemento `<video>` riproduce lo sfondo MP4 del round.
+- Un elemento `<img>` mostra la GIF dell’anatra in volo o in caduta; JavaScript aggiorna posizione, dimensioni e trasformazione CSS.
+- Il `<canvas>` disegna mirino, effetti dei colpi e cane iniziale. Punteggi e pannelli sono elementi HTML.
+
+`requestAnimationFrame` programma il callback del frame successivo. `aggiornaFotogramma` calcola l’intervallo trascorso in secondi, limitato a 0,05, aggiorna la simulazione e disegna. Il movimento orizzontale usa `velocitaX × intervallo`; il seno e le sue varianti determinano l’oscillazione verticale. Il limite riduce i salti dopo frame lenti, ma può rallentare il tempo simulato rispetto al tempo reale.
+
+`adattaCanvas` aggiorna risoluzione e coordinate in caso di ridimensionamento. Il fattore `devicePixelRatio` è limitato a 2. GIF e mirino usano impostazioni adatte alla pixel art.
+
+### Eventi e DOM
+
+Sono gestiti `click`, `mousemove`, `mouseleave`, `mousedown`, `keydown` e `resize`. I callback richiamano funzioni dedicate, come `avviaPartita`, `puntaMira`, `spara` e `adattaCanvas`.
+
+La manipolazione del DOM comprende aggiornamenti tramite `textContent`, attributi `hidden` e `aria-label`, classi CSS, sorgenti di immagini e video, stili della GIF e valori dei `<meter>` dei risultati. Non serve creare nuovi nodi per soddisfare questo requisito: il programma modifica quelli già presenti.
+
+### Sparo e collisione
+
+`spara` verifica fase e munizioni, consuma un colpo e confronta la mira con il centro dell’anatra. La hitbox è rettangolare: distanza orizzontale minore di `27 × scala` e verticale minore di `21 × scala`, quindi circa 54 × 42 unità a scala 1. Il numero del tentativo seleziona i punti nell’array `[100, 60, 30]`.
+
+### Sincrono e asincrono
+
+Calcolo delle collisioni, aggiornamento del punteggio, modifiche al DOM e accesso a `localStorage` sono sincroni.
+
+`attendi` restituisce una Promise completata da `setTimeout`. Le funzioni `async` `continuaPartita` e `mostraIntroTurno` usano `await` per sospendere la propria prosecuzione senza bloccare il browser. Le attese sono di 900 ms tra bersagli mancati, 1050 ms per la caduta e 1800 ms per l’introduzione del round. Sono ritardi programmati: la ripresa può avvenire più tardi se il browser è occupato.
+
+Dopo le attese vengono controllati fase e `gettonePartita`. Il gettone cambia all’avvio e alla conclusione: una prosecuzione vecchia viene ignorata e non modifica una partita diversa. Il controllo non cancella il timer.
+
+### Caricamento e messaggi
+
+`caricaImmagine` gestisce `Image.onload` e `Image.onerror` con Promise. `Promise.all` attende sette immagini: due GIF di volo, due di caduta, due mirini e il cane. Il pulsante mostra **Caricamento…** finché queste risorse non sono pronte. Se una fallisce, viene mostrato un errore e l’avvio resta disabilitato.
+
+I cinque banner dei round vengono precaricati separatamente; i video MP4 sono caricati quando cambia lo scenario. Non sono inclusi nel controllo di `Promise.all`.
+
+I pannelli mostrano introduzione del round, pausa e risultati. Il pulsante iniziale indica il caricamento delle immagini e un pannello segnala gli eventuali errori. Non è presente una barra di stato testuale separata.
+
+### Pausa
+
+La pausa blocca gli aggiornamenti della simulazione e mette in pausa il video dello sfondo. Il loop continua e aggiorna il timestamp, evitando un salto di posizione alla ripresa. La GIF può continuare la propria animazione interna anche mentre l’anatra resta ferma.
+
+## Modificare la configurazione
+
+Le costanti principali si trovano all’inizio di `script.js`:
+
+| Costante | Funzione | Valore attuale |
+| --- | --- | --- |
 | `BERSAGLI_PER_TURNO` | Bersagli per round | 10 |
-| `NUMERO_TURNI` | Round per partita | 5 |
-| `COLPI_PER_ANATRA` | Colpi a disposizione per anatra | 3 |
-| `PUNTI_PER_COLPO` | Punti per primo, secondo, terzo colpo | 100 / 60 / 30 |
-| `LIVELLI_DIFFICOLTA` | Velocità e tempo di volo per livello | vedi tabella |
-| `SFONDI_TURNI` | Sfondo e nome di ogni round | 5 scenari |
+| `NUMERO_TURNI` | Numero di round | 5 |
+| `COLPI_PER_ANATRA` | Munizioni per bersaglio | 3 |
+| `PUNTI_PER_COLPO` | Punti per tentativo | `[100, 60, 30]` |
+| `IMPOSTAZIONI` | Tempo e velocità base | 4,5 s / 360 |
+| `DURATA_CADUTA` | Tempo della caduta | 1,05 s |
+| `SFONDI_TURNI` | File MP4 e nomi degli scenari | 5 elementi |
 
-Per aggiungere uno scenario, inserisci il nuovo PNG in `img`, aggiungilo a `SFONDI_TURNI` e aumenta `NUMERO_TURNI`. Il mirino bianco compare sempre nell'**ultimo** round.
-
----
-
-© Varisco Nicolò · Androni Lorenzo
+Se si modifica il numero dei round, vanno aggiornati in modo coerente anche gli scenari, i banner `img/roundN.png`, il loro precaricamento, le righe dei risultati in `gioco.html` e i testi che indicano cinque round o cinquanta bersagli. Il mirino bianco è associato all’ultimo round.
